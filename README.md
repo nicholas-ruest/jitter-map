@@ -1,3 +1,5 @@
+[![Rust](https://cdn.jsdelivr.net/gh/devicons/devicon@v2.17.0/icons/rust/rust-original.svg)](https://www.rust-lang.org/)
+
 # jitter-map
 
 `jitter-map` is a deterministic retry-schedule simulator for engineers tuning
@@ -6,6 +8,28 @@ counts the collision windows where retries can become a new traffic spike.
 
 It supports full jitter, equal jitter, decorrelated jitter, and an unjittered
 baseline. A seed makes every generated plan reproducible for reviews and CI.
+
+## Project status
+
+This release is a standalone retry simulation utility. It has one crate and
+does not yet integrate Ruvnet or enterprise open-source systems. It does not
+meet the Dream Machine project completion standard: architecture decision
+records, detailed domain design, integrated upstream components, benchmark
+evidence, and verified research/build Gist publication remain outstanding.
+
+## Execution flow
+
+```mermaid
+flowchart TD
+    A["CLI arguments"] --> B["Validated simulation configuration"]
+    B --> C["Seeded retry schedule"]
+    C --> D["Collision-window analysis"]
+    C --> E["JSON or CSV schedule"]
+    D --> F["Summary metrics"]
+```
+
+The diagram describes the current in-memory simulator. There is no network
+executor, persistent memory, or external integration in this release.
 
 ## Install
 
