@@ -1,0 +1,10 @@
+[package]
+name="jitter-application"
+version.workspace=true
+edition.workspace=true
+rust-version.workspace=true
+license.workspace=true
+[dependencies]
+jitter-domain={version="0.2.0",path="../jitter-domain"}
+serde.workspace=true
+thiserror.workspace=true
