@@ -22,7 +22,8 @@ fn run() -> Result<()> {
     let input = fs::read_to_string(&cli.scenario).with_context(|| format!("read {}", cli.scenario.display()))?;
     let scenario: Scenario = serde_json::from_str(&input).context("parse scenario JSON")?;
     let kind = match cli.policy { PolicyArg::Local => PolicyKind::LocalJitter, PolicyArg::Aws => PolicyKind::AwsStandard, PolicyArg::Adaptive => PolicyKind::AdaptiveBudget };
-    let receipt = evaluate(EvaluateRequest { scenario, kind, timeout_ms: cli.timeout_ms }, &AwsPolicySource::standard(cli.aws_max_attempts), &RuvectorMemory::open(&cli.memory)?, &RvfSealer, &SystemClock)?;
+    let memory = RuvectorMemory::open(&cli.memory).map_err(anyhow::Error::msg)?;
+    let receipt = evaluate(EvaluateRequest { scenario, kind, timeout_ms: cli.timeout_ms }, &AwsPolicySource::standard(cli.aws_max_attempts), &memory, &RvfSealer, &SystemClock)?;
     println!("{}", serde_json::to_string_pretty(&receipt)?);
     Ok(())
 }
