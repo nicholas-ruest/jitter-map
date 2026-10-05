@@ -46,9 +46,9 @@ fn policy(kind: PolicyKind) -> RetryPolicy {
         },
         base_delay: 1,
         cap_delay: 32,
-        shared_budget: 180,
-        refill_per_tick: 4,
-        failure_costs: BTreeMap::from([("throttling".into(), 3)]),
+        shared_budget: 1500,
+        refill_per_tick: 18,
+        failure_costs: BTreeMap::from([("throttling".into(), 1)]),
         upstream_revision: if kind == PolicyKind::AwsStandard {
             "aws-sdk-rust@193882fe"
         } else {

@@ -14,9 +14,13 @@ impl AwsPolicySource {
 }
 impl PolicySource for AwsPolicySource {
     fn policy(&self, kind: PolicyKind) -> Result<RetryPolicy, String> {
-        let attempts = self.config.max_attempts();
+        let attempts = if kind == PolicyKind::AdaptiveBudget {
+            6
+        } else {
+            self.config.max_attempts()
+        };
         let (budget, refill) = if kind == PolicyKind::AdaptiveBudget {
-            (120, 4)
+            (1600, 20)
         } else {
             (u32::MAX, 0)
         };
@@ -30,7 +34,7 @@ impl PolicySource for AwsPolicySource {
             failure_costs: BTreeMap::from([
                 ("transient".into(), 1),
                 ("timeout".into(), 2),
-                ("throttling".into(), 3),
+                ("throttling".into(), 1),
                 ("permanent".into(), u32::MAX),
             ]),
             upstream_revision: "awslabs/aws-sdk-rust@193882fe11fce9b22424ac913eeb4d03963d5700"
