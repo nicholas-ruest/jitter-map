@@ -1,0 +1,8 @@
+{
+  "status": "PARTIAL_FAILURE",
+  "failures": [
+    "gist:research",
+    "gist:build"
+  ],
+  "caveat": "Receipt consistency is not independent proof of live execution or publication."
+}
