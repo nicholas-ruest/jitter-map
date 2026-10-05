@@ -1,16 +1,46 @@
-[package]
-name = "jitter-map"
-version = "0.1.0"
+[workspace]
+members = ["crates/jitter-domain", "crates/jitter-application", "crates/jitter-adapter-aws", "crates/jitter-adapter-ruvnet", "crates/jitter-evaluation"]
+resolver = "2"
+
+[workspace.package]
+version = "0.2.0"
 edition = "2024"
 rust-version = "1.85"
-description = "Deterministic retry schedule simulator and collision analyzer"
 license = "MIT"
 repository = "https://github.com/nicholas-ruest/jitter-map"
-readme = "README.md"
-keywords = ["backoff", "jitter", "reliability", "cli"]
-categories = ["command-line-utilities", "simulation"]
 
-[dependencies]
+[workspace.dependencies]
+anyhow = "1.0.100"
+aws-smithy-types = "1.3.4"
 clap = { version = "4.5.48", features = ["derive"] }
+hex = "0.4.3"
+ruvector-core = "2.3.1"
+rvf-crypto = "0.2.0"
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
+sha2 = "0.10.9"
+tempfile = "3.23.0"
+thiserror = "2.0.17"
+
+[package]
+name = "jitter-map"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Fleet-level retry admission simulator with auditable outcome memory"
+readme = "README.md"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+jitter-application = { path = "crates/jitter-application" }
+jitter-adapter-aws = { path = "crates/jitter-adapter-aws" }
+jitter-adapter-ruvnet = { path = "crates/jitter-adapter-ruvnet" }
+jitter-domain = { path = "crates/jitter-domain" }
+serde_json.workspace = true
+
+[[bin]]
+name = "jitter-map"
+path = "src/main.rs"

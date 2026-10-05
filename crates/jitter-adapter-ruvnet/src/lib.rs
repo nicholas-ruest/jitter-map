@@ -1,0 +1,14 @@
+use std::{collections::HashMap,path::Path};
+use jitter_application::{OutcomeMemory,WitnessSealer};
+use jitter_domain::SimulationReport;
+use ruvector_core::types::{DbOptions,HnswConfig};
+use ruvector_core::{DistanceMetric,SearchQuery,VectorDB,VectorEntry};
+use rvf_crypto::{WitnessEntry,create_witness_chain,shake256_256,verify_witness_chain};
+use serde_json::Value;
+pub struct RuvectorMemory{db:VectorDB}
+impl RuvectorMemory{pub fn open(path:impl AsRef<Path>)->Result<Self,String>{let o=DbOptions{dimensions:8,distance_metric:DistanceMetric::Cosine,storage_path:path.as_ref().to_string_lossy().into_owned(),hnsw_config:Some(HnswConfig::default()),quantization:None};VectorDB::new(o).map(|db|Self{db}).map_err(|e|e.to_string())}}
+impl OutcomeMemory for RuvectorMemory{fn append_and_search(&self,r:&SimulationReport)->Result<Vec<String>,String>{let v=embedding(r);let q=SearchQuery{vector:v.clone(),k:3,filter:None,ef_search:Some(32)};let prior=self.db.search(q).map_err(|e|e.to_string())?.into_iter().map(|x|x.id).collect();let id=format!("{}-{:?}-{}",&r.scenario_sha256[..12],r.policy,r.attempts);let mut m=HashMap::<String,Value>::new();m.insert("authority".into(),Value::String("none".into()));m.insert("scenario".into(),Value::String(r.scenario_sha256.clone()));let stored=self.db.insert(VectorEntry{id:Some(id),vector:v,metadata:Some(m)}).map_err(|e|e.to_string())?;self.db.get(&stored).map_err(|e|e.to_string())?.ok_or("RuVector read-back missing".to_string())?;Ok(prior)}}
+pub struct RvfSealer;
+impl WitnessSealer for RvfSealer{fn seal(&self,actions:&[Vec<u8>])->Result<String,String>{let entries:Vec<_>=actions.iter().enumerate().map(|(i,a)|WitnessEntry{prev_hash:[0;32],action_hash:shake256_256(a),timestamp_ns:i as u64,witness_type:if i==0{1}else{2}}).collect();let chain=create_witness_chain(&entries);verify_witness_chain(&chain).map_err(|e|e.to_string())?;Ok(hex::encode(shake256_256(&chain)))}}
+fn embedding(r:&SimulationReport)->Vec<f32>{vec![r.original_requests as f32/1000.0,r.attempts as f32/5000.0,r.successes as f32/1000.0,r.terminal_failures as f32/1000.0,r.denied_retries as f32/5000.0,r.retry_amplification_factor()as f32/10.0,r.p95_ticks()as f32/1000.0,1.0]}
+#[cfg(test)]mod tests{use super::*;use jitter_domain::PolicyKind;use tempfile::tempdir;#[test]fn real_vector_round_trip_and_witness(){let d=tempdir().unwrap();let m=RuvectorMemory::open(d.path()).unwrap();let r=SimulationReport{policy:PolicyKind::AdaptiveBudget,original_requests:10,attempts:12,successes:9,terminal_failures:1,denied_retries:2,completed_at:vec![1,2],scenario_sha256:"a".repeat(64),authority:"none".into()};assert!(m.append_and_search(&r).unwrap().is_empty());assert_eq!(m.append_and_search(&r).unwrap().len(),1);assert_eq!(RvfSealer.seal(&[b"a".to_vec(),b"b".to_vec()]).unwrap().len(),64);}}
