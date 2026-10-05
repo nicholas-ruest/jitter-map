@@ -20,7 +20,7 @@ impl PolicySource for AwsPolicySource {
             self.config.max_attempts()
         };
         let (budget, refill) = if kind == PolicyKind::AdaptiveBudget {
-            (1600, 20)
+            (1500, 18)
         } else {
             (u32::MAX, 0)
         };
