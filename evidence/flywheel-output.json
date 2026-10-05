@@ -1,0 +1,21 @@
+{
+  "package": "@metaharness/flywheel@0.1.12",
+  "generationsRun": 2,
+  "promotions": 0,
+  "replayVerdict": {
+    "pass": true,
+    "checks": {
+      "receipts": true,
+      "reachesRoot": true,
+      "contiguousParents": true,
+      "allPromoted": true,
+      "gateUnchanged": true,
+      "gateReExecutes": true,
+      "allCommitsReceipts": true,
+      "sealedFieldsAuthentic": true
+    },
+    "failures": [],
+    "chainSummary": "gen0(root)"
+  },
+  "authority": "none"
+}
