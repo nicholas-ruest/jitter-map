@@ -1,110 +1,71 @@
-[![Rust](https://cdn.jsdelivr.net/gh/devicons/devicon@v2.17.0/icons/rust/rust-original.svg)](https://www.rust-lang.org/)
+<p align="center">
+  <a href="https://www.rust-lang.org/"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rust/rust-original.svg" width="46" height="46" alt="Rust language"></a>&nbsp;&nbsp;
+  <a href="https://github.com/awslabs/aws-sdk-rust"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/amazonwebservices.svg" width="46" height="46" alt="AWS SDK for Rust"></a>&nbsp;&nbsp;
+  <a href="https://github.com/ruvnet/RuVector"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/rust.svg" width="46" height="46" alt="RuVector and RVF Rust projects"></a>&nbsp;&nbsp;
+  <a href="https://github.com/ruvnet/metaharness"><img src="https://cdn.jsdelivr.net/npm/simple-icons@v16/icons/githubactions.svg" width="46" height="46" alt="MetaHarness evaluation and GitHub Actions"></a>
+</p>
 
-# jitter-map
+# JitterMap
 
-`jitter-map` is a deterministic retry-schedule simulator for engineers tuning
-backoff before a fleet rollout. It shows when every client will wake up and
-counts the collision windows where retries can become a new traffic spike.
+Fleet-level retry admission with replayable evidence. JitterMap answers a system question that client-local backoff cannot: when many independently reasonable clients encounter one correlated failure, which retries should the fleet admit?
 
-It supports full jitter, equal jitter, decorrelated jitter, and an unjittered
-baseline. A seed makes every generated plan reproducible for reviews and CI.
+![JitterMap architecture](docs/assets/jitter-map-overview.svg)
 
-## Project status
+## Capabilities
 
-This release is a standalone retry simulation utility. It has one crate and
-does not yet integrate Ruvnet or enterprise open-source systems. It does not
-meet the Dream Machine project completion standard: architecture decision
-records, detailed domain design, integrated upstream components, benchmark
-evidence, and verified research/build Gist publication remain outstanding.
+- deterministic discrete-event simulation with seeded full jitter;
+- local, real AWS RetryConfig, and adaptive shared-budget strategies;
+- Retry Amplification Factor, success, denial, and p95 evidence;
+- real RuVector outcome insert/search/read-back;
+- real RVF witness-chain sealing;
+- bounded MetaHarness Darwin/Flywheel evaluation with authority none.
 
-## Execution flow
+## Quickstart
 
-```mermaid
-flowchart TD
-    A["CLI arguments"] --> B["Validated simulation configuration"]
-    B --> C["Seeded retry schedule"]
-    C --> D["Collision-window analysis"]
-    C --> E["JSON or CSV schedule"]
-    D --> F["Summary metrics"]
-```
+    cargo run --locked -- --scenario examples/correlated-outage.json --policy adaptive --memory .jitter-map-memory
+    cargo run --locked -p jitter-evaluation --bin jitter-benchmark
 
-The diagram describes the current in-memory simulator. There is no network
-executor, persistent memory, or external integration in this release.
+The JSON receipt includes the exact scenario digest, report, nearest prior outcome IDs, witness root, and authority none. It is evidence, not a production change.
 
-## Install
+MetaHarness evaluation uses the same compiled domain engine through `jitter-candidate`. Darwin supplies a numeric genome over stdin; Flywheel evaluates concrete policies, seals lineage, replays the frozen gate, and records zero autonomous promotions.
 
-```console
-cargo install --git https://github.com/nicholas-ruest/jitter-map
-```
+## Workspace
 
-Or build from a checkout with stable Rust 1.85 or newer:
+| Crate | Responsibility |
+|---|---|
+| jitter-domain | typed scenario/policy model and deterministic engine |
+| jitter-application | workflow and ports |
+| jitter-adapter-aws | real AWS Smithy RetryConfig translation |
+| jitter-adapter-ruvnet | RuVector memory and RVF sealing |
+| jitter-evaluation | frozen baselines and ablations |
+| jitter-map | usable CLI composition root |
 
-```console
-cargo build --release
-```
+## Upstream composition
 
-## Use
+| Ingredient | Executed contribution | Pin |
+|---|---|---|
+| AWS SDK for Rust | constructs/translates aws_smithy_types retry config | 193882fe11fce9b22424ac913eeb4d03963d5700 |
+| RuVector | VectorDB insert/search/get outcome memory | source 5a93328f, crate 2.3.1 |
+| RVF | witness creation and verification | rvf-crypto 0.2.0 |
+| MetaHarness | bounded Darwin validation and Flywheel replay | source 9ce8b8d, packages 0.10.3/0.1.12 |
 
-Compare a 100-client fleet using full jitter:
+## Architecture and evidence
 
-```console
-jitter-map \
-  --clients 100 \
-  --attempts 6 \
-  --base 100ms \
-  --cap 30s \
-  --strategy full \
-  --seed 42 \
-  --collision-window 10ms \
-  --summary-only
-```
+The [specification](docs/specification.md), [architecture](docs/architecture.md), [25 ADRs](docs/adrs/index.md), [12 DDD documents](docs/ddd/index.md), [frozen contract](docs/implementation-contract.md), [research](docs/research.md), and [traceability](docs/traceability.md) define the build. CI results and benchmark receipts are recorded under evidence.
 
-Example output:
+## Frozen benchmark
 
-```text
-total events: 600
-occupied windows: 241
-colliding client-windows: 481
-collision pairs: 1311
-peak window load: 23
-```
+The deterministic fixture contains 400 requests from eight tenants, a six-tick correlated throttling outage, capacity 25 per tick, seed 20261004, and a 200-tick horizon. All strategies consume the same scenario digest:
+`da09384a2793c13f191197de6f4bb4ea15f60e67765c19fd338f4a590f53889d`.
 
-Get the complete schedule as JSON or CSV:
+| Strategy | Retry amplification | Successes | p95 ticks | Attempts | Denied retries |
+|---|---:|---:|---:|---:|---:|
+| Local full jitter | 5.4375 | 364 | 24 | 2,175 | 0 |
+| AWS standard | 3.0000 | 0 | 0 | 1,200 | 0 |
+| Adaptive shared budget | 5.3050 | 332 | 24 | 2,122 | 38 |
 
-```console
-jitter-map --clients 25 --strategy equal --format json > plan.json
-jitter-map --clients 25 --strategy decorrelated --format csv > plan.csv
-```
+The adaptive candidate reduced amplification by only 2.4% while losing 8.8% of successful outcomes versus local jitter. The AWS-standard baseline exhausted its three attempts during the frozen outage. Neither result clears a production-promotion gate; the current decision is **REVISE**. Raw output is in [evidence/benchmark.json](evidence/benchmark.json).
 
-Accepted durations are integers with `ms`, `s`, `m`, or `h` suffixes. A bare
-integer is treated as milliseconds. Run `jitter-map --help` for every option.
+## Maturity and limitations
 
-## What the metrics mean
-
-- **occupied windows**: time buckets containing at least one retry.
-- **colliding client-windows**: client appearances in buckets shared with at
-  least one other client. One client is counted at most once per bucket.
-- **collision pairs**: pairs of distinct clients sharing a bucket.
-- **peak window load**: the largest number of distinct clients in one bucket.
-
-The model deliberately stays small: all clients start at time zero, schedules
-are generated in memory, and network latency or server-directed retry hints are
-not simulated. The CLI rejects plans above 5,000,000 events.
-
-## Reproducibility
-
-The pseudorandom mapping is implemented in this crate and keyed by seed,
-client, and attempt. The same release, arguments, and seed produce byte-for-byte
-identical JSON output across runs.
-
-## Verify
-
-```console
-cargo fmt --check
-cargo clippy --all-targets --all-features -- -D warnings
-cargo test --all-features
-```
-
-## License
-
-MIT
+This is a pre-1.0 evaluation system, not an SDK interceptor, deployment controller, or claim of production superiority. The current frozen candidate does not beat the success-preservation gate. The discrete-event model does not reproduce every network, SDK, or scheduler behavior. RuVector local file storage is evaluation-only; production persistence must remain behind authorized RuVector/Cloud SQL infrastructure. MetaHarness can propose and score policy candidates but cannot promote them. No component may self-promote a policy.
