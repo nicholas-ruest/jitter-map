@@ -1,0 +1,23 @@
+{
+  "shared_budget": {
+    "min": 600,
+    "max": 2400,
+    "scale": "linear",
+    "type": "int",
+    "default": 1500
+  },
+  "refill_per_tick": {
+    "min": 4,
+    "max": 32,
+    "scale": "linear",
+    "type": "int",
+    "default": 18
+  },
+  "throttling_cost": {
+    "min": 1,
+    "max": 8,
+    "scale": "linear",
+    "type": "int",
+    "default": 1
+  }
+}

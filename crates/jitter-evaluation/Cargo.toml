@@ -11,3 +11,7 @@ serde_json.workspace=true
 [[bin]]
 name="jitter-benchmark"
 path="src/main.rs"
+
+[[bin]]
+name="jitter-candidate"
+path="src/candidate.rs"

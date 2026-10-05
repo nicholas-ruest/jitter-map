@@ -1,0 +1,41 @@
+{
+  "variant": {
+    "id": "g1_v3",
+    "parentId": "baseline",
+    "generation": 1,
+    "genome": {
+      "shared_budget": 1566,
+      "refill_per_tick": 22,
+      "throttling_cost": 1
+    },
+    "mutatedParams": [
+      "shared_budget",
+      "refill_per_tick"
+    ],
+    "mutationSummary": "perturbed [shared_budget, refill_per_tick]",
+    "createdAt": "2026-10-05T02:49:50.193Z"
+  },
+  "score": {
+    "variantId": "g1_v3",
+    "primary": 0.80125,
+    "regressed": false,
+    "noopRate": 0.09,
+    "costPerWin": 5.975274725274725,
+    "raw": {
+      "variantId": "g1_v3",
+      "retryAmplificationFactor": 5.4375,
+      "successes": 364,
+      "attempts": 2175,
+      "deniedRetries": 0,
+      "p95Ticks": 24,
+      "scenarioSha256": "da09384a2793c13f191197de6f4bb4ea15f60e67765c19fd338f4a590f53889d",
+      "authority": "none"
+    }
+  },
+  "children": [
+    "g2_v0",
+    "g2_v1",
+    "g2_v2",
+    "g2_v3"
+  ]
+}
