@@ -35,10 +35,10 @@ readme = "README.md"
 [dependencies]
 anyhow.workspace = true
 clap.workspace = true
-jitter-application = { path = "crates/jitter-application" }
-jitter-adapter-aws = { path = "crates/jitter-adapter-aws" }
-jitter-adapter-ruvnet = { path = "crates/jitter-adapter-ruvnet" }
-jitter-domain = { path = "crates/jitter-domain" }
+jitter-application = { version = "0.2.0", path = "crates/jitter-application" }
+jitter-adapter-aws = { version = "0.2.0", path = "crates/jitter-adapter-aws" }
+jitter-adapter-ruvnet = { version = "0.2.0", path = "crates/jitter-adapter-ruvnet" }
+jitter-domain = { version = "0.2.0", path = "crates/jitter-domain" }
 serde_json.workspace = true
 
 [[bin]]
