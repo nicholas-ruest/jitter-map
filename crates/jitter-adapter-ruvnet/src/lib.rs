@@ -83,4 +83,44 @@ impl WitnessSealer for RvfSealer {
 }
 fn embedding(r: &SimulationReport) -> Vec<f32> {
     vec![
-        r.orig
+        r.original_requests as f32 / 1000.0,
+        r.attempts as f32 / 5000.0,
+        r.successes as f32 / 1000.0,
+        r.terminal_failures as f32 / 1000.0,
+        r.denied_retries as f32 / 5000.0,
+        r.retry_amplification_factor() as f32 / 10.0,
+        r.p95_ticks() as f32 / 1000.0,
+        1.0,
+    ]
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use jitter_domain::PolicyKind;
+    use tempfile::tempdir;
+    #[test]
+    fn real_vector_round_trip_and_witness() {
+        let d = tempdir().unwrap();
+        let m = RuvectorMemory::open(d.path()).unwrap();
+        let r = SimulationReport {
+            policy: PolicyKind::AdaptiveBudget,
+            original_requests: 10,
+            attempts: 12,
+            successes: 9,
+            terminal_failures: 1,
+            denied_retries: 2,
+            completed_at: vec![1, 2],
+            scenario_sha256: "a".repeat(64),
+            authority: "none".into(),
+        };
+        assert!(m.append_and_search(&r).unwrap().is_empty());
+        assert_eq!(m.append_and_search(&r).unwrap().len(), 1);
+        assert_eq!(
+            RvfSealer
+                .seal(&[b"a".to_vec(), b"b".to_vec()])
+                .unwrap()
+                .len(),
+            64
+        );
+    }
+}

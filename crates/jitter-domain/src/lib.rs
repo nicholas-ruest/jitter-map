@@ -103,3 +103,182 @@ pub fn simulate(
     s: &Scenario,
     p: &RetryPolicy,
     ctl: &impl RunControl,
+) -> Result<SimulationReport, DomainError> {
+    validate(s)?;
+    if p.max_attempts == 0 || p.base_delay == 0 || p.base_delay > p.cap_delay {
+        return Err(DomainError::Policy);
+    }
+    let mut q: BinaryHeap<Reverse<(u32, u32, u32, u32)>> = BinaryHeap::new();
+    for id in 0..s.requests {
+        q.push(Reverse((0, id % s.tenants, id, 1)))
+    }
+    let (mut attempts, mut successes, mut terminal, mut denied) = (0u64, 0u32, 0u32, 0u64);
+    let mut completed = Vec::new();
+    let mut budget = p.shared_budget;
+    let mut last = 0;
+    let mut used = BTreeMap::<u32, u32>::new();
+    while let Some(Reverse((tick, tenant, id, attempt))) = q.pop() {
+        if ctl.cancelled() {
+            return Err(DomainError::Cancelled);
+        }
+        if ctl.deadline_exceeded() {
+            return Err(DomainError::Deadline);
+        }
+        if attempts >= s.max_events {
+            return Err(DomainError::EventLimit);
+        }
+        if tick > s.horizon_ticks {
+            terminal += 1;
+            continue;
+        }
+        if tick > last {
+            budget = budget
+                .saturating_add((tick - last).saturating_mul(p.refill_per_tick))
+                .min(p.shared_budget);
+            last = tick
+        }
+        attempts += 1;
+        let slot = used.entry(tick).or_default();
+        if tick >= s.outage_ticks && *slot < s.capacity_per_tick {
+            *slot += 1;
+            successes += 1;
+            completed.push(tick);
+            continue;
+        }
+        if attempt >= p.max_attempts || s.failure == FailureClass::Permanent {
+            terminal += 1;
+            continue;
+        }
+        let cost = *p.failure_costs.get(failure_name(s.failure)).unwrap_or(&1);
+        if p.kind == PolicyKind::AdaptiveBudget && budget < cost {
+            denied += 1;
+            terminal += 1;
+            continue;
+        }
+        if p.kind == PolicyKind::AdaptiveBudget {
+            budget -= cost
+        }
+        let ceiling = p
+            .base_delay
+            .saturating_mul(
+                1u32.checked_shl(attempt.saturating_sub(1))
+                    .unwrap_or(u32::MAX),
+            )
+            .min(p.cap_delay);
+        let delay = 1 + (random_word(s.seed, id, attempt) % u64::from(ceiling)) as u32;
+        q.push(Reverse((
+            tick.saturating_add(delay),
+            tenant,
+            id,
+            attempt + 1,
+        )))
+    }
+    Ok(SimulationReport {
+        policy: p.kind,
+        original_requests: s.requests,
+        attempts,
+        successes,
+        terminal_failures: terminal,
+        denied_retries: denied,
+        completed_at: completed,
+        scenario_sha256: scenario_digest(s),
+        authority: "none".into(),
+    })
+}
+pub fn scenario_digest(s: &Scenario) -> String {
+    let mut h = Sha256::new();
+    h.update(format!(
+        "{}:{}:{}:{}:{}:{}:{}:{:?}:{}",
+        s.version,
+        s.requests,
+        s.tenants,
+        s.capacity_per_tick,
+        s.outage_ticks,
+        s.horizon_ticks,
+        s.seed,
+        s.failure,
+        s.max_events
+    ));
+    format!("{:x}", h.finalize())
+}
+fn failure_name(f: FailureClass) -> &'static str {
+    match f {
+        FailureClass::Transient => "transient",
+        FailureClass::Throttling => "throttling",
+        FailureClass::Timeout => "timeout",
+        FailureClass::Permanent => "permanent",
+    }
+}
+fn random_word(seed: u64, id: u32, attempt: u32) -> u64 {
+    let mut x = seed ^ u64::from(id).wrapping_mul(0x9e3779b97f4a7c15) ^ u64::from(attempt);
+    x = x.wrapping_add(0x9e3779b97f4a7c15);
+    x = (x ^ (x >> 30)).wrapping_mul(0xbf58476d1ce4e5b9);
+    x = (x ^ (x >> 27)).wrapping_mul(0x94d049bb133111eb);
+    x ^ (x >> 31)
+}
+fn quantile(values: &[u32], pct: usize) -> u32 {
+    if values.is_empty() {
+        return 0;
+    }
+    let mut v = values.to_vec();
+    v.sort_unstable();
+    v[((v.len() - 1) * pct / 100).min(v.len() - 1)]
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    struct C;
+    impl RunControl for C {
+        fn cancelled(&self) -> bool {
+            false
+        }
+        fn deadline_exceeded(&self) -> bool {
+            false
+        }
+    }
+    fn s() -> Scenario {
+        Scenario {
+            version: 1,
+            requests: 100,
+            tenants: 4,
+            capacity_per_tick: 10,
+            outage_ticks: 3,
+            horizon_ticks: 100,
+            seed: 7,
+            failure: FailureClass::Throttling,
+            max_events: 10000,
+        }
+    }
+    fn p(k: PolicyKind) -> RetryPolicy {
+        RetryPolicy {
+            kind: k,
+            max_attempts: 5,
+            base_delay: 1,
+            cap_delay: 16,
+            shared_budget: 40,
+            refill_per_tick: 2,
+            failure_costs: BTreeMap::from([("throttling".into(), 3)]),
+            upstream_revision: "test".into(),
+        }
+    }
+    #[test]
+    fn replay_is_stable() {
+        assert_eq!(
+            simulate(&s(), &p(PolicyKind::AdaptiveBudget), &C).unwrap(),
+            simulate(&s(), &p(PolicyKind::AdaptiveBudget), &C).unwrap()
+        )
+    }
+    #[test]
+    fn budget_limits_amplification() {
+        let a = simulate(&s(), &p(PolicyKind::AdaptiveBudget), &C).unwrap();
+        let l = simulate(&s(), &p(PolicyKind::LocalJitter), &C).unwrap();
+        assert!(a.attempts < l.attempts);
+        assert!(a.denied_retries > 0)
+    }
+    #[test]
+    fn invalid_is_rejected() {
+        let mut x = s();
+        x.requests = 0;
+        assert_eq!(validate(&x), Err(DomainError::Zero))
+    }
+}
