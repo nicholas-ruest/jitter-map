@@ -2,7 +2,7 @@
 
 ## Purpose and model
 
-RetryPolicy owns attempt cap, delay range, jitter behavior, retryable classes, costs, budget, refill, and upstream revision. Adapter provenance is data, never hidden global state. Aggregate roots protect invariants before state transitions; entities retain stable scenario identity; immutable value objects cross boundaries; domain events are append-only facts, never commands disguised as history.
+RetryPolicy owns attempt cap, delay range, jitter behavior, retryable classes, costs, budget, refill, and upstream revision. `PolicyKind` selects the admission strategy: `LocalJitter` and `AwsStandard` are not budget-gated; `AdaptiveBudget` and `AdaptiveDeferral` share the same budget fields but differ only in what happens when the budget is temporarily insufficient, per ADR-0026. Adapter provenance is data, never hidden global state. Aggregate roots protect invariants before state transitions; entities retain stable scenario identity; immutable value objects cross boundaries; domain events are append-only facts, never commands disguised as history.
 
 ## Ownership and interfaces
 

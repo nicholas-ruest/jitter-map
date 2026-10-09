@@ -40,3 +40,7 @@ Research report filename: `dream-machine-research-2026-10-04-jitter-map.md`
 Decision: REVISE.
 
 This announcement contains no secrets, credentials, private source, personal data or confidential material.
+
+## Addendum — 2026-10-09
+
+ADR-0026 adds `AdaptiveDeferral`, a second admission strategy that reschedules a retry to the tick at which projected shared-budget refill would cover its cost instead of dropping it immediately, falling back to the drop behavior when refill is impossible or would exceed the horizon. `AdaptiveBudget` is unchanged and remains the ablation it was. On the frozen fixture, `AdaptiveDeferral` measured RAF 5.4425, 329 successes, 2,177 attempts, 0 denied, 55 deferred — worse on both RAF and success count than the drop ablation. This is reported as measured; neither adaptive candidate clears the promotion gate. `cargo fmt --all -- --check`, `cargo clippy --locked --workspace --all-targets --all-features -- -D warnings`, `cargo test --locked --workspace --all-targets --all-features`, `cargo deny check`, and `cargo run --locked -p jitter-evaluation --bin jitter-benchmark` were re-executed on the governed Rust 1.99.0 runtime after this change.

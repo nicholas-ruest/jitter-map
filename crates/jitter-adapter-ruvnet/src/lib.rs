@@ -109,6 +109,7 @@ mod tests {
             successes: 9,
             terminal_failures: 1,
             denied_retries: 2,
+            deferred_retries: 0,
             completed_at: vec![1, 2],
             scenario_sha256: "a".repeat(64),
             authority: "none".into(),

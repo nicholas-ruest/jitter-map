@@ -1,6 +1,6 @@
 # Architecture decision records
 
-These 25 accepted decisions freeze the bounded MVP. Each records alternatives, consequences, and executable validation.
+These 26 accepted decisions freeze the bounded MVP. Each records alternatives, consequences, and executable validation.
 
 - [ADR-0001: System-level retry admission](./0001-system-level-retry-admission.md)
 - [ADR-0002: Deterministic discrete-event engine](./0002-deterministic-discrete-event-engine.md)
@@ -27,3 +27,4 @@ These 25 accepted decisions freeze the bounded MVP. Each records alternatives, c
 - [ADR-0023: Darwin safety envelope](./0023-darwin-safety-envelope.md)
 - [ADR-0024: CLI JSON contract](./0024-cli-json-contract.md)
 - [ADR-0025: Conservative repository recovery](./0025-conservative-repository-recovery.md)
+- [ADR-0026: Adaptive deferral admission](./0026-adaptive-deferral-admission.md)
