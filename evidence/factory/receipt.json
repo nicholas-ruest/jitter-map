@@ -1,24 +1,24 @@
 {
   "schemaVersion": "dream.factory.v1",
-  "date": "2026-10-04",
+  "date": "2026-10-08",
   "coreMemory": {
-    "commit": "515c6445e28e75d33ebe75f34ea3e8f3a31a2361",
+    "commit": "d9c4b5750e011aa807fbae8ddad3e78f8baf7249",
     "files": {
       "AGENTS.md": "4afe6f9008076140486d2a1e5424ddc6e40a0671",
       "CLAUDE.md": "0178167276c981ff0ba503e2e564eee8d347e3f7",
       "docs/architecture-overview.md": "8ba7f76674e59555dbcd5f971554884c54085944",
-      "docs/adr/0195-storage-adapter-anti-corruption.md": "9a8bdfe08dd41abc4402ab46a4ad359356815b6e",
-      "docs/adr/benchmark-promotion.md": "15e782267153e3d4251bf7fc196763de83b9669b",
-      "docs/adr/trust-root-witness.md": "a550f0a481ca0804ceb6a4a442653cc0179dcda7",
-      "docs/ddd/bounded-context-map.md": "ddda3371b416dc7394b15957451fc3a829a9fe21",
-      "docs/ddd/governance.md": "2c1e98630374c966699c5a808305daa6718b4cfc",
+      "docs/adr/0002-storage-engine-anti-corruption-adapter.md": "9a8bdfe08dd41abc4402ab46a4ad359356815b6e",
+      "docs/ddd/bounded-context-map.md": "0b560da87a55b01d5559eeb57b4015feaa77bc30",
+      "docs/ddd/governance.md": "1146df6918ae704bc06f4b5c9cf8a37139eedb9a",
       "docs/ddd/memory-store.md": "b00275577f9ee60b192b4aa2712632f2e2439ef7"
     },
     "appliedDecisions": [
       "Bind evidence to immutable source revisions.",
       "Keep evaluators advisory and authority none.",
       "Use typed anti-corruption layers at upstream boundaries.",
-      "Persist append-only outcome evidence through RuVector and seal it with RVF."
+      "Persist append-only outcome evidence through RuVector and seal it with RVF.",
+      "Write deterministic tests without timing mocks.",
+      "Evaluators and memory systems cannot self-promote a candidate."
     ]
   },
   "research": {
@@ -76,8 +76,8 @@
     "kind": "new-project",
     "thesis": "Evaluate fleet-level retry admission under correlated failure with enterprise retry semantics and auditable Ruvnet outcome evidence.",
     "repository": "https://github.com/nicholas-ruest/jitter-map",
-    "commit": "cefda80a04d112e93807ea5489082bab1824cf1e",
-    "readBackCommit": "cefda80a04d112e93807ea5489082bab1824cf1e",
+    "commit": "ab28cc6baa4444ce672963920b32d85c43cddadd",
+    "readBackCommit": "ab28cc6baa4444ce672963920b32d85c43cddadd",
     "ingredients": [
       {
         "component": "RuVector",
@@ -101,49 +101,5 @@
         "commit": "193882fe11fce9b22424ac913eeb4d03963d5700",
         "license": "Apache-2.0",
         "enterprise": true,
-        "integrationExecuted": true
-      }
-    ]
-  },
-  "commands": {
-    "fmt": { "executed": true, "exitCode": 0, "commit": "cefda80a04d112e93807ea5489082bab1824cf1e" },
-    "clippy": { "executed": true, "exitCode": 0, "commit": "cefda80a04d112e93807ea5489082bab1824cf1e" },
-    "test": { "executed": true, "exitCode": 0, "commit": "cefda80a04d112e93807ea5489082bab1824cf1e" },
-    "security": { "executed": true, "exitCode": 0, "commit": "cefda80a04d112e93807ea5489082bab1824cf1e" },
-    "integration": { "executed": true, "exitCode": 0, "commit": "cefda80a04d112e93807ea5489082bab1824cf1e" },
-    "benchmark": { "executed": true, "exitCode": 0, "commit": "cefda80a04d112e93807ea5489082bab1824cf1e" }
-  },
-  "evaluators": {
-    "metaharness": {
-      "executed": true,
-      "exitCode": 0,
-      "upstreamCommit": "9ce8b8dd89045c3b9a1f809ae58f3589029db4a4",
-      "mock": false
-    },
-    "darwin": {
-      "executed": true,
-      "exitCode": 0,
-      "upstreamCommit": "9ce8b8dd89045c3b9a1f809ae58f3589029db4a4",
-      "mock": false
-    },
-    "flywheel": {
-      "executed": true,
-      "exitCode": 0,
-      "upstreamCommit": "9ce8b8dd89045c3b9a1f809ae58f3589029db4a4",
-      "mock": false
-    }
-  },
-  "gists": {
-    "research": null,
-    "build": null
-  },
-  "evidence": [
-    { "path": "benchmark.json", "sha256": "ec47d53452c8e2a73e80c7bebe7391c22e2055a04ff762bceb6ef8d742093066" },
-    { "path": "candidate-baseline.json", "sha256": "7b9376c5eb7d4c3abfa2cbb8c1f38be973c31e2c0ef998af5ba15cd72f7f3022" },
-    { "path": "cli-receipt.json", "sha256": "2904d42d6f01f41621d1e4886a1f079ca5c650fe0d1c97841f49afe9f5683c83" },
-    { "path": "darwin-output.txt", "sha256": "8731ff0cecc0e2bc79eb7c47b6a4acbee2a9ab0c8383e815ba95ddfa00d1c495" },
-    { "path": "darwin-winner.json", "sha256": "dbacb56f7fd69d9adaf5a56d96642678a33d2787ea84aedc95967bfcb0c29ff0" },
-    { "path": "flywheel-output.json", "sha256": "a39e5fd1caf18a89c4fd7c60f4fb1764bda18d7c953f0b03321eaba450fb81b2" },
-    { "path": "flywheel-replay.json", "sha256": "118fccca1ff03f19ae7783c94a0839d426f5cefae206c155bcc86678f4cd186c" }
-  ]
-}
+ 
+… [output truncated]
