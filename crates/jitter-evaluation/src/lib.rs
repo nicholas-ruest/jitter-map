@@ -20,6 +20,7 @@ pub struct Row {
     pub p95: u32,
     pub attempts: u64,
     pub denied: u64,
+    pub deferred: u64,
     pub scenario_sha256: String,
     pub authority: String,
 }
@@ -62,6 +63,7 @@ pub fn run() -> Vec<Row> {
         PolicyKind::LocalJitter,
         PolicyKind::AwsStandard,
         PolicyKind::AdaptiveBudget,
+        PolicyKind::AdaptiveDeferral,
     ]
     .into_iter()
     .map(|k| {
@@ -73,6 +75,7 @@ pub fn run() -> Vec<Row> {
             p95: r.p95_ticks(),
             attempts: r.attempts,
             denied: r.denied_retries,
+            deferred: r.deferred_retries,
             scenario_sha256: r.scenario_sha256,
             authority: "none".into(),
         }
@@ -88,5 +91,6 @@ mod tests {
         assert!(r.iter().all(|x| x.scenario_sha256 == r[0].scenario_sha256));
         assert!(r.iter().all(|x| x.authority == "none"));
         assert!(r[2].raf < r[0].raf);
+        assert!(r[3].deferred > 0);
     }
 }

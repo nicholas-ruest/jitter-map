@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="400" viewBox="0 0 1200 400" role="img" aria-labelledby="t d">
+<title id="t">JitterMap fleet retry admission overview</title>
+<desc id="d">Tenants send retries into a shared-budget admission engine. Admitted retries flow to evidence memory and a sealed witness. Temporarily exhausted retries loop through a deferral holding path and re-enter admission once budget refills; retries with no possible refill are denied. Animated dots illustrate this flow; without motion the same pipeline is legible as static boxes and arrows.</desc>
+<style>
+  .seg { opacity: 0; }
+  .segA { animation: segA 4s linear infinite; }
+  .segB { animation: segB 4s linear infinite; }
+  .segC { animation: segC 4s linear infinite; }
+  .segD { animation: segD 4s linear infinite; }
+  .segA2 { animation: segA 4s linear infinite; animation-delay: -2s; }
+  .segB2 { animation: segB 4s linear infinite; animation-delay: -2s; }
+  .segC2 { animation: segC 4s linear infinite; animation-delay: -2s; }
+  .segD2 { animation: segD 4s linear infinite; animation-delay: -2s; }
+  .gauge-fill { transform-box: fill-box; transform-origin: bottom; animation: gauge 6s ease-in-out infinite; }
+  .loop-dot { animation: loopDot 5s linear infinite; }
+  @keyframes segA { 0% { transform: translateX(0); opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translateX(100px); opacity: 0; } }
+  @keyframes segB { 0% { transform: translateX(0); opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translateX(100px); opacity: 0; } }
+  @keyframes segC { 0% { transform: translateX(0); opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translateX(40px); opacity: 0; } }
+  @keyframes segD { 0% { transform: translateX(0); opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translateX(30px); opacity: 0; } }
+  @keyframes gauge { 0% { transform: scaleY(0.85); } 45% { transform: scaleY(0.3); } 55% { transform: scaleY(0.3); } 100% { transform: scaleY(0.85); } }
+  @keyframes loopDot {
+    0% { transform: translate(0,0); }
+    25% { transform: translate(26px,-20px); }
+    50% { transform: translate(0,-40px); }
+    75% { transform: translate(-26px,-20px); }
+    100% { transform: translate(0,0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .segA, .segB, .segC, .segD, .segA2, .segB2, .segC2, .segD2, .gauge-fill, .loop-dot { animation: none !important; opacity: 1; }
+  }
+</style>
+<rect width="1200" height="400" rx="26" fill="#0b1020"/>
+<text x="40" y="44" fill="#ffffff" font-family="system-ui, sans-serif" font-size="26" font-weight="700">Fleet retry admission, deferral, and evidence</text>
+<defs>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0L10 5L0 10z" fill="#64748b"/>
+  </marker>
+</defs>
+<g stroke="#64748b" stroke-width="3" fill="none" marker-end="url(#arrow)">
+  <path d="M200 200H296"/>
+  <path d="M520 200H616"/>
+  <path d="M810 200H846"/>
+  <path d="M1020 200H1046"/>
+</g>
+<path d="M410 130 C446 90 374 90 410 130" stroke="#94a3b8" stroke-width="2" fill="none" stroke-dasharray="4 4"/>
+<path d="M360 300 L410 270" stroke="#94a3b8" stroke-width="2" fill="none" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+<g font-family="system-ui, sans-serif" text-anchor="middle">
+  <rect x="40" y="150" width="160" height="100" rx="16" fill="#1d4ed8"/>
+  <text x="120" y="195" font-size="18" font-weight="700" fill="#ffffff">Tenants</text>
+  <text x="120" y="218" font-size="13" fill="#dbeafe">fleet retries</text>
+
+  <rect x="300" y="130" width="220" height="140" rx="16" fill="#7c3aed"/>
+  <text x="360" y="185" font-size="18" font-weight="700" fill="#ffffff">Admission</text>
+  <text x="360" y="207" font-size="13" fill="#ede9fe">shared budget</text>
+  <rect x="470" y="150" width="20" height="100" rx="4" fill="#1e293b"/>
+  <rect x="470" y="150" width="20" height="100" rx="4" fill="#22c55e" class="gauge-fill"/>
+
+  <text x="410" y="75" font-size="13" fill="#94a3b8">deferred retry: waits for refill</text>
+  <circle cx="410" cy="130" r="6" fill="#facc15" class="loop-dot"/>
+
+  <rect x="340" y="300" width="200" height="54" rx="12" fill="#1e293b" stroke="#475569"/>
+  <text x="440" y="322" font-size="13" font-weight="700" fill="#e2e8f0">Denied (fail closed)</text>
+  <text x="440" y="340" font-size="11" fill="#94a3b8">no refill possible, or past horizon</text>
+
+  <rect x="620" y="150" width="190" height="100" rx="16" fill="#047857"/>
+  <text x="715" y="195" font-size="17" font-weight="700" fill="#ffffff">Evidence memory</text>
+  <text x="715" y="217" font-size="12" fill="#d1fae5">RuVector insert / search</text>
+
+  <rect x="850" y="150" width="170" height="100" rx="16" fill="#0f766e"/>
+  <text x="935" y="195" font-size="17" font-weight="700" fill="#ffffff">Sealed witness</text>
+  <text x="935" y="217" font-size="12" fill="#ccfbf1">RVF witness chain</text>
+
+  <rect x="1050" y="150" width="130" height="100" rx="16" fill="#b45309"/>
+  <text x="1115" y="195" font-size="17" font-weight="700" fill="#ffffff">Receipt</text>
+  <text x="1115" y="217" font-size="12" fill="#ffedd5">authority: none</text>
+</g>
+<g fill="#fde68a">
+  <circle cx="200" cy="200" r="7" class="seg segA"/>
+  <circle cx="200" cy="200" r="7" class="seg segA2"/>
+  <circle cx="520" cy="200" r="7" class="seg segB"/>
+  <circle cx="520" cy="200" r="7" class="seg segB2"/>
+  <circle cx="810" cy="200" r="6" class="seg segC"/>
+  <circle cx="810" cy="200" r="6" class="seg segC2"/>
+  <circle cx="1020" cy="200" r="6" class="seg segD"/>
+  <circle cx="1020" cy="200" r="6" class="seg segD2"/>
+</g>
+</svg>

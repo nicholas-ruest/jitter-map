@@ -14,12 +14,16 @@ impl AwsPolicySource {
 }
 impl PolicySource for AwsPolicySource {
     fn policy(&self, kind: PolicyKind) -> Result<RetryPolicy, String> {
-        let attempts = if kind == PolicyKind::AdaptiveBudget {
+        let budget_gated = matches!(
+            kind,
+            PolicyKind::AdaptiveBudget | PolicyKind::AdaptiveDeferral
+        );
+        let attempts = if budget_gated {
             6
         } else {
             self.config.max_attempts()
         };
-        let (budget, refill) = if kind == PolicyKind::AdaptiveBudget {
+        let (budget, refill) = if budget_gated {
             (1500, 18)
         } else {
             (u32::MAX, 0)

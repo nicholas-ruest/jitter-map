@@ -4,6 +4,8 @@
 
 *Retry Amplification in Distributed Systems* (arXiv:2608.25403, 2026-08-26) defines RAF and evaluates Adaptive Retry Budgeting across 200 open-source microservices. It motivates the mechanism; JitterMap does not claim to reproduce the paper.
 
+ADR-0026 (2026-10-09) adds a second admission strategy inspired by that mechanism's distinction between a budget that is permanently exhausted versus one that is only temporarily below cost. `AdaptiveDeferral` reschedules a retry to the tick at which projected refill would clear it instead of dropping it immediately, and falls back to the drop behavior when refill is impossible or would exceed the horizon. On the frozen fixture this is not a universal improvement over the existing drop ablation — see the benchmark table in README.md — which is reported as measured rather than adjusted toward a preferred outcome.
+
 ## Enterprise OSS stream
 
 AWS SDK for Rust commit `193882fe11fce9b22424ac913eeb4d03963d5700` (2026-10-02, Apache-2.0) supplies the real RetryConfig interface. AWS's current Bedrock traffic-shaper sample provides central pacing prior art. NVIDIA NeMo Agent Toolkit issue #2212 (2026-09-04) records adapters ignoring an explicit no-retry setting, motivating executable configuration-truth tests.

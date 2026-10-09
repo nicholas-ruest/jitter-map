@@ -6,6 +6,7 @@
     "p95": 24,
     "attempts": 2175,
     "denied": 0,
+    "deferred": 0,
     "scenario_sha256": "da09384a2793c13f191197de6f4bb4ea15f60e67765c19fd338f4a590f53889d",
     "authority": "none"
   },
@@ -16,6 +17,7 @@
     "p95": 0,
     "attempts": 1200,
     "denied": 0,
+    "deferred": 0,
     "scenario_sha256": "da09384a2793c13f191197de6f4bb4ea15f60e67765c19fd338f4a590f53889d",
     "authority": "none"
   },
@@ -26,6 +28,18 @@
     "p95": 24,
     "attempts": 2122,
     "denied": 38,
+    "deferred": 0,
+    "scenario_sha256": "da09384a2793c13f191197de6f4bb4ea15f60e67765c19fd338f4a590f53889d",
+    "authority": "none"
+  },
+  {
+    "candidate": "AdaptiveDeferral",
+    "raf": 5.4425,
+    "successes": 329,
+    "p95": 24,
+    "attempts": 2177,
+    "denied": 0,
+    "deferred": 55,
     "scenario_sha256": "da09384a2793c13f191197de6f4bb4ea15f60e67765c19fd338f4a590f53889d",
     "authority": "none"
   }

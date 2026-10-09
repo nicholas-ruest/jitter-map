@@ -54,3 +54,16 @@ Keeping JitterMap as a collision calculator was rejected because it did not just
 https://github.com/nicholas-ruest/jitter-map
 
 This report contains no secrets, credentials, private source, personal data or confidential material.
+
+## Addendum — 2026-10-09
+
+ADR-0026 evaluates a second adaptive candidate, `AdaptiveDeferral`, inspired by the same cited mechanism's distinction between temporary and permanent budget exhaustion: instead of dropping an under-budget retry, it is deterministically rescheduled to the tick at which projected refill would cover its cost, bounded by the scenario horizon and `MAX_EVENTS`, and fails closed (drops) when refill is structurally impossible or would exceed the horizon. On the same frozen fixture and digest:
+
+| Strategy | RAF | Successes | p95 | Attempts | Denied | Deferred |
+|---|---:|---:|---:|---:|---:|---:|
+| Local full jitter | 5.4375 | 364 | 24 | 2,175 | 0 | 0 |
+| AWS standard | 3.0000 | 0 | 0 | 1,200 | 0 | 0 |
+| Adaptive shared budget (drop) | 5.3050 | 332 | 24 | 2,122 | 38 | 0 |
+| Adaptive deferral | 5.4425 | 329 | 24 | 2,177 | 0 | 55 |
+
+Deferral converts every budget-exhaustion event into a reschedule on this fixture (0 denied) but spends more of the fixed `max_attempts` ceiling waiting on contested budget, which raises attempts and lowers successes relative to the drop ablation. This is a genuine, executed, mixed-to-negative result, not a success story adjusted after the fact. Neither adaptive candidate clears the promotion gate; the decision remains REVISE for both.

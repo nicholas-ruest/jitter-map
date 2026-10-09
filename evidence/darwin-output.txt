@@ -1,16 +1,14 @@
 Darwin Mode (numeric genome) — leaderboard
-  primary=0.8013  g1_v3  regressed=false  {shared_budget=1566 refill_per_tick=22.00 throttling_cost=1.000} ◀ winner
-  primary=0.8013  g2_v1  regressed=false  {shared_budget=1740 refill_per_tick=19.00 throttling_cost=1.000}
-  primary=0.8013  g2_v2  regressed=false  {shared_budget=1893 refill_per_tick=22.00 throttling_cost=1.000}
-  primary=0.8013  g2_v3  regressed=false  {shared_budget=1820 refill_per_tick=21.00 throttling_cost=1.000}
-  primary=0.7239  baseline  regressed=true  {shared_budget=1500 refill_per_tick=18.00 throttling_cost=1.000}
-  primary=0.3423  g1_v0  regressed=true  {shared_budget=1332 refill_per_tick=10.00 throttling_cost=1.000}
-  primary=0.2402  g1_v2  regressed=true  {shared_budget=1291 refill_per_tick=8.000 throttling_cost=1.000}
-  primary=0.0072  g2_v0  regressed=true  {shared_budget=1206 refill_per_tick=26.00 throttling_cost=2.000}
-  primary=-0.0133  g1_v1  regressed=true  {shared_budget=1543 refill_per_tick=21.00 throttling_cost=2.000}
+  primary=0.7239  baseline  regressed=true  {shared_budget=1500 refill_per_tick=18.00 throttling_cost=1.000} ◀ winner
+  primary=0.3351  g1_v1  regressed=true  {shared_budget=1315 refill_per_tick=12.00 throttling_cost=1.000}
+  primary=0.0664  g1_v3  regressed=true  {shared_budget=708 refill_per_tick=29.00 throttling_cost=1.000}
+  primary=0.0332  g1_v0  regressed=true  {shared_budget=1669 refill_per_tick=21.00 throttling_cost=2.000}
+  primary=-0.0112  g1_v2  regressed=true  {shared_budget=1561 refill_per_tick=22.00 throttling_cost=2.000}
 
-Winner: g1_v3
-Lineage: baseline → g1_v3
-Delta over baseline: +0.0774
+Winner: baseline
+Lineage: baseline
+Delta over baseline: +0.0000
+
+Run parameters: seed=42 generations=2 children=4 concurrency=1 candidate=./target/debug/jitter-candidate
 
 Artifacts: .metaharness-numeric

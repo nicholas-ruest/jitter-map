@@ -1,12 +1,12 @@
 {
   "report": {
-    "policy": "adaptive_budget",
+    "policy": "adaptive_deferral",
     "original_requests": 400,
-    "attempts": 2122,
-    "successes": 332,
-    "terminal_failures": 68,
-    "denied_retries": 38,
-    "deferred_retries": 0,
+    "attempts": 2177,
+    "successes": 329,
+    "terminal_failures": 71,
+    "denied_retries": 0,
+    "deferred_retries": 55,
     "completed_at": [
       6,
       6,
@@ -255,9 +255,6 @@
       16,
       16,
       16,
-      16,
-      16,
-      17,
       17,
       17,
       17,
@@ -281,7 +278,6 @@
       19,
       19,
       19,
-      19,
       20,
       20,
       20,
@@ -319,6 +315,7 @@
       23,
       23,
       23,
+      24,
       24,
       24,
       24,
@@ -344,9 +341,9 @@
     "scenario_sha256": "da09384a2793c13f191197de6f4bb4ea15f60e67765c19fd338f4a590f53889d",
     "authority": "none"
   },
-  "retry_amplification_factor": 5.305,
+  "retry_amplification_factor": 5.4425,
   "p95_ticks": 24,
   "nearest_prior_ids": [],
-  "witness_root": "5dc28d41abbd97d3ae62ca7b290c3aacce665cc3068d24958c3b737fe7f71406",
+  "witness_root": "5e2547bb378839aeded3c67b7556a16e727b7fa63b86d55d23508c312362dc7c",
   "authority": "none"
 }

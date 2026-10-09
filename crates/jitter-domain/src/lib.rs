@@ -19,6 +19,7 @@ pub enum PolicyKind {
     LocalJitter,
     AwsStandard,
     AdaptiveBudget,
+    AdaptiveDeferral,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Scenario {
@@ -51,6 +52,7 @@ pub struct SimulationReport {
     pub successes: u32,
     pub terminal_failures: u32,
     pub denied_retries: u64,
+    pub deferred_retries: u64,
     pub completed_at: Vec<u32>,
     pub scenario_sha256: String,
     pub authority: String,
@@ -112,7 +114,8 @@ pub fn simulate(
     for id in 0..s.requests {
         q.push(Reverse((0, id % s.tenants, id, 1)))
     }
-    let (mut attempts, mut successes, mut terminal, mut denied) = (0u64, 0u32, 0u32, 0u64);
+    let (mut attempts, mut successes, mut terminal, mut denied, mut deferred) =
+        (0u64, 0u32, 0u32, 0u64, 0u64);
     let mut completed = Vec::new();
     let mut budget = p.shared_budget;
     let mut last = 0;
@@ -150,12 +153,26 @@ pub fn simulate(
             continue;
         }
         let cost = *p.failure_costs.get(failure_name(s.failure)).unwrap_or(&1);
-        if p.kind == PolicyKind::AdaptiveBudget && budget < cost {
+        let budget_gated = matches!(
+            p.kind,
+            PolicyKind::AdaptiveBudget | PolicyKind::AdaptiveDeferral
+        );
+        if budget_gated && budget < cost {
+            if p.kind == PolicyKind::AdaptiveDeferral && p.refill_per_tick > 0 {
+                let wait = (cost - budget).div_ceil(p.refill_per_tick);
+                let deferred_tick = tick.saturating_add(wait);
+                if deferred_tick <= s.horizon_ticks {
+                    deferred += 1;
+                    budget = 0;
+                    q.push(Reverse((deferred_tick, tenant, id, attempt + 1)));
+                    continue;
+                }
+            }
             denied += 1;
             terminal += 1;
             continue;
         }
-        if p.kind == PolicyKind::AdaptiveBudget {
+        if budget_gated {
             budget -= cost
         }
         let ceiling = p
@@ -180,6 +197,7 @@ pub fn simulate(
         successes,
         terminal_failures: terminal,
         denied_retries: denied,
+        deferred_retries: deferred,
         completed_at: completed,
         scenario_sha256: scenario_digest(s),
         authority: "none".into(),
@@ -280,5 +298,60 @@ mod tests {
         let mut x = s();
         x.requests = 0;
         assert_eq!(validate(&x), Err(DomainError::Zero))
+    }
+    #[test]
+    fn deferral_recovers_denied_budget() {
+        let budget = simulate(&s(), &p(PolicyKind::AdaptiveBudget), &C).unwrap();
+        let deferral = simulate(&s(), &p(PolicyKind::AdaptiveDeferral), &C).unwrap();
+        assert!(deferral.deferred_retries > 0);
+        assert!(deferral.successes > budget.successes);
+        assert!(deferral.denied_retries <= budget.denied_retries);
+    }
+    #[test]
+    fn deferral_fails_closed_without_refill() {
+        let mut budget_policy = p(PolicyKind::AdaptiveBudget);
+        budget_policy.refill_per_tick = 0;
+        let mut deferral_policy = p(PolicyKind::AdaptiveDeferral);
+        deferral_policy.refill_per_tick = 0;
+        let budget = simulate(&s(), &budget_policy, &C).unwrap();
+        let deferral = simulate(&s(), &deferral_policy, &C).unwrap();
+        assert_eq!(deferral.deferred_retries, 0);
+        assert_eq!(deferral.denied_retries, budget.denied_retries);
+        assert_eq!(deferral.successes, budget.successes);
+        assert_eq!(deferral.attempts, budget.attempts);
+    }
+    #[test]
+    fn deferral_replay_is_stable() {
+        assert_eq!(
+            simulate(&s(), &p(PolicyKind::AdaptiveDeferral), &C).unwrap(),
+            simulate(&s(), &p(PolicyKind::AdaptiveDeferral), &C).unwrap()
+        )
+    }
+    #[test]
+    fn deferral_fails_closed_beyond_horizon() {
+        let scenario = Scenario {
+            version: 1,
+            requests: 10,
+            tenants: 2,
+            capacity_per_tick: 5,
+            outage_ticks: 2,
+            horizon_ticks: 3,
+            seed: 1,
+            failure: FailureClass::Throttling,
+            max_events: 1_000,
+        };
+        let policy = RetryPolicy {
+            kind: PolicyKind::AdaptiveDeferral,
+            max_attempts: 5,
+            base_delay: 1,
+            cap_delay: 4,
+            shared_budget: 1,
+            refill_per_tick: 1,
+            failure_costs: BTreeMap::from([("throttling".into(), 100)]),
+            upstream_revision: "test".into(),
+        };
+        let report = simulate(&scenario, &policy, &C).unwrap();
+        assert_eq!(report.deferred_retries, 0);
+        assert!(report.denied_retries > 0);
     }
 }
