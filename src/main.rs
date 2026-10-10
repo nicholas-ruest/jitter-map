@@ -29,6 +29,7 @@ enum PolicyArg {
     Aws,
     Adaptive,
     AdaptiveDeferral,
+    TenantFairBudget,
 }
 fn main() {
     if let Err(error) = run() {
@@ -46,6 +47,7 @@ fn run() -> Result<()> {
         PolicyArg::Aws => PolicyKind::AwsStandard,
         PolicyArg::Adaptive => PolicyKind::AdaptiveBudget,
         PolicyArg::AdaptiveDeferral => PolicyKind::AdaptiveDeferral,
+        PolicyArg::TenantFairBudget => PolicyKind::TenantFairBudget,
     };
     let memory = RuvectorMemory::open(&cli.memory).map_err(anyhow::Error::msg)?;
     let receipt = evaluate(

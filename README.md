@@ -14,8 +14,8 @@ Fleet-level retry admission with replayable evidence. JitterMap answers a system
 ## Capabilities
 
 - deterministic discrete-event simulation with seeded full jitter;
-- local, real AWS RetryConfig, adaptive shared-budget (drop), and adaptive deferral strategies;
-- Retry Amplification Factor, success, denial, deferral, and p95 evidence;
+- local, real AWS RetryConfig, adaptive drop/deferral, and deterministic tenant-fair strategies;
+- aggregate and per-tenant RAF, success, denial, deferral, p95, and Jain fairness evidence;
 - real RuVector outcome insert/search/read-back;
 - real RVF witness-chain sealing;
 - bounded MetaHarness Darwin/Flywheel evaluation with authority none.
@@ -24,9 +24,11 @@ Fleet-level retry admission with replayable evidence. JitterMap answers a system
 
     cargo run --locked -- --scenario examples/correlated-outage.json --policy adaptive --memory .jitter-map-memory
     cargo run --locked -- --scenario examples/correlated-outage.json --policy adaptive-deferral --memory .jitter-map-memory
+    cargo run --locked -- --scenario examples/skewed-tenant-outage.json --policy tenant-fair-budget --memory .jitter-map-memory
     cargo run --locked -p jitter-evaluation --bin jitter-benchmark
+    cargo run --locked -p jitter-evaluation --bin jitter-fairness-benchmark
 
-`--policy` accepts `local`, `aws`, `adaptive` (shared budget, drop on exhaustion), or `adaptive-deferral` (shared budget, defer on temporary exhaustion, fail closed otherwise; see [ADR-0026](docs/adrs/0026-adaptive-deferral-admission.md)). The JSON receipt includes the exact scenario digest, report, nearest prior outcome IDs, witness root, and authority none. It is evidence, not a production change.
+`--policy` accepts `local`, `aws`, `adaptive`, `adaptive-deferral`, or `tenant-fair-budget`. The fair policy rotates same-tick admission across per-tenant FIFO queues while preserving shared-budget drop semantics; see [ADR-0021](docs/adrs/0021-tenant-fairness.md). The JSON receipt includes the exact scenario digest, typed aggregate/per-tenant report, nearest prior outcome IDs, witness root, and authority none.
 
 MetaHarness evaluation uses the same compiled domain engine through `jitter-candidate`. Darwin supplies a numeric genome over stdin; Flywheel evaluates concrete policies, seals lineage, replays the frozen gate, and records zero autonomous promotions.
 
@@ -61,16 +63,21 @@ The [specification](docs/specification.md), [architecture](docs/architecture.md)
 ## Frozen benchmark
 
 The deterministic fixture contains 400 requests from eight tenants, a six-tick correlated throttling outage, capacity 25 per tick, seed 20261004, and a 200-tick horizon. All strategies consume the same scenario digest:
-`da09384a2793c13f191197de6f4bb4ea15f60e67765c19fd338f4a590f53889d`.
+`bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b`.
 
-| Strategy | Retry amplification | Successes | p95 ticks | Attempts | Denied retries | Deferred retries |
-|---|---:|---:|---:|---:|---:|---:|
-| Local full jitter | 5.4375 | 364 | 24 | 2,175 | 0 | 0 |
-| AWS standard | 3.0000 | 0 | 0 | 1,200 | 0 | 0 |
-| Adaptive shared budget (drop) | 5.3050 | 332 | 24 | 2,122 | 38 | 0 |
-| Adaptive deferral | 5.4425 | 329 | 24 | 2,177 | 0 | 55 |
+| Strategy | RAF | Successes | p95 | Attempts | Denied | Deferred | Jain fairness |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Local full jitter | 5.4375 | 364 | 24 | 2,175 | 0 | 0 | 0.9855 |
+| AWS standard | 3.0000 | 0 | 0 | 1,200 | 0 | 0 | n/a |
+| Adaptive shared budget | 5.3050 | 332 | 24 | 2,122 | 38 | 0 | 0.9365 |
+| Adaptive deferral | 5.4425 | 329 | 24 | 2,177 | 0 | 55 | 0.9270 |
+| Tenant-fair budget | 5.2875 | 336 | 23 | 2,115 | 38 | 0 | 0.9980 |
 
-The drop ablation reduced amplification by only 2.4% while losing 8.8% of successful outcomes versus local jitter. The deferral candidate ([ADR-0026](docs/adrs/0026-adaptive-deferral-admission.md)) had zero outright denials on this fixture, rescheduling every budget-exhaustion event instead (55 deferred), but it measured *worse* than the drop ablation: 2.6% higher RAF and 0.9% fewer successes, because deferred retries still spend a fixed `max_attempts` ceiling waiting on contested budget, and some of them ultimately fail anyway. The AWS-standard baseline exhausted its three attempts during the frozen outage. None of the three adaptive/local candidates clears a production-promotion gate; the current decision is **REVISE** for both adaptive strategies. Raw output is in [evidence/benchmark.json](evidence/benchmark.json).
+The tenant-fair policy produced the best adaptive RAF, p95, successes, and fairness on the balanced fixture, but this remains a deterministic model rather than production proof. Deferral eliminated immediate denials but regressed RAF and successes versus drop. The AWS baseline exhausted its three attempts during the outage. Raw output is in [evidence/benchmark.json](evidence/benchmark.json).
+
+### Skewed-tenant fairness ablation
+
+A second frozen fixture assigns demand weights `[8,1,1,1,1,1,1,1]`. Tenant-fair admission raised Jain fairness from **0.1250** to **0.8932** versus adaptive drop, while aggregate successes fell from **72** to **63** and RAF moved from **3.7017** to **3.7100**. The mechanism works, but the throughput cost blocks promotion. Raw output is in [evidence/fairness-benchmark.json](evidence/fairness-benchmark.json).
 
 ## Maturity and limitations
 

@@ -66,4 +66,10 @@ ADR-0026 evaluates a second adaptive candidate, `AdaptiveDeferral`, inspired by 
 | Adaptive shared budget (drop) | 5.3050 | 332 | 24 | 2,122 | 38 | 0 |
 | Adaptive deferral | 5.4425 | 329 | 24 | 2,177 | 0 | 55 |
 
-Deferral converts every budget-exhaustion event into a reschedule on this fixture (0 denied) but spends more of the fixed `max_attempts` ceiling waiting on contested budget, which raises attempts and lowers successes relative to the drop ablation. This is a genuine, executed, mixed-to-negative result, not a success story adjusted after the fact. Neither adaptive candidate clears the promotion gate; the decision remains REVISE for both.
+Deferral converts every budget-exhaustion event into a reschedule on this fixture (0 denied) but spends more of the fixed `max_attempts` ceiling waiting on contested budget, which raises attempts and lowers successes relative to the drop ablation. This is a genuine mixed-to-negative result; the decision remains REVISE.
+
+## Supplemental fairness research  2026-10-09
+
+The recovery audit found ADR-0021 claimed deterministic tenant rounds that the heap implementation did not provide. The selected mechanism batches each tick, preserves FIFO inside each tenant, rotates the first tenant by tick, and shares the existing adaptive drop budget. Weighted demand affects assignment, not admission entitlement. Jain fairness over per-tenant success ratios is `null` when undefined.
+
+The skewed frozen ablation raised fairness from 0.1250 to 0.8932 but reduced successes from 72 to 63. That falsifies a free-improvement hypothesis: fairness is materially better, throughput is materially worse. The next hypothesis is an idle-capacity-aware deficit round robin that preserves deterministic replay while recovering aggregate successes.

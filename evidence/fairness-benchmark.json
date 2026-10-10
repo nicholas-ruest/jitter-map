@@ -1,0 +1,38 @@
+[
+  {
+    "candidate": "AdaptiveBudget",
+    "raf": 3.7016666666666667,
+    "successes": 72,
+    "p95": 16,
+    "attempts": 2221,
+    "denied": 527,
+    "deferred": 0,
+    "tenant_success_fairness": 0.125,
+    "scenario_sha256": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
+    "authority": "none"
+  },
+  {
+    "candidate": "AdaptiveDeferral",
+    "raf": 5.901666666666666,
+    "successes": 89,
+    "p95": 19,
+    "attempts": 3541,
+    "denied": 0,
+    "deferred": 1315,
+    "tenant_success_fairness": 0.125,
+    "scenario_sha256": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
+    "authority": "none"
+  },
+  {
+    "candidate": "TenantFairBudget",
+    "raf": 3.71,
+    "successes": 63,
+    "p95": 15,
+    "attempts": 2226,
+    "denied": 536,
+    "deferred": 0,
+    "tenant_success_fairness": 0.8931963478708163,
+    "scenario_sha256": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
+    "authority": "none"
+  }
+]

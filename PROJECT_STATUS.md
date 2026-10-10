@@ -1,11 +1,11 @@
 # Project status
 
-- IMPLEMENTED: six-crate Rust vertical slice with AWS RetryConfig, RuVector and RVF paths
-- IMPLEMENTED: added `AdaptiveDeferral` (ADR-0026) as a second, distinct admission strategy alongside the unchanged `AdaptiveBudget` ablation
-- VALIDATED: governed executor gates pass; frozen benchmark does not clear promotion criteria for either adaptive candidate
-- REPO_PUBLISHED: architecture and integration recovery PRs merged; validation PR records final evidence
+- IMPLEMENTED: six-crate Rust vertical slice with AWS RetryConfig, RuVector, RVF, and MetaHarness paths
+- IMPLEMENTED: added opt-in `TenantFairBudget` with weighted workloads, rotating per-tenant admission, typed outcomes, and explicit Jain fairness
+- VALIDATED: locked tests and frozen balanced/skewed ablations pass; tenant fairness improves materially but costs aggregate throughput under skew
+- REPO_PUBLISHED: pending this increment's validated PR and merged-main readback
 - RESEARCH_GIST: BLOCKED_GIST_PUBLISH
-- BUILD_GIST: prior recovery post exists, but the required build announcement remains BLOCKED_GIST_PUBLISH
+- BUILD_GIST: prior partial recovery post exists; full announcement remains BLOCKED_GIST_PUBLISH
 - BUILT: no
 
-The project is source-grounded and executable but both adaptive candidates require revision: on the frozen fixture, deferral trades immediate denial for more attempts that mostly still fail, yielding a lower success count and higher RAF than the drop ablation. It cannot be called built until both dated public Gist files are published and independently read back.
+Decision: **REVISE**. The mechanism closes the ADR-0021 implementation gap, but the skewed fixture moves fairness from 0.1250 to 0.8932 while successes fall from 72 to 63. Promotion requires revising the fairness/throughput boundary and publishing both dated Gists.

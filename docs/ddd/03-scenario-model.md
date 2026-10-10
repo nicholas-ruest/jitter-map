@@ -2,7 +2,7 @@
 
 ## Purpose and model
 
-Scenario owns requests, tenants, capacity and outage windows, horizon, seed, and event ceiling. It rejects nonpositive counts, invalid horizons, unsupported versions, and unsafe event limits before allocation. Aggregate roots protect invariants before state transitions; entities retain stable scenario identity; immutable value objects cross boundaries; domain events are append-only facts, never commands disguised as history.
+Scenario owns requests, tenants, optional positive tenant weights, capacity and outage windows, horizon, seed, and event ceiling. It rejects nonpositive counts, weight/cardinality mismatches, overflow, invalid horizons, unsupported versions, and unsafe event limits before allocation. Weighted assignment is deterministic and becomes part of the scenario digest. Aggregate roots protect invariants before state transitions; entities retain stable scenario identity; immutable value objects cross boundaries; domain events are append-only facts.
 
 ## Ownership and interfaces
 

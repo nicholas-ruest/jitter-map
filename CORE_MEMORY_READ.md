@@ -1,6 +1,6 @@
 # CORE_MEMORY_READ receipt
 
-Default branch commit: `d9c4b5750e011aa807fbae8ddad3e78f8baf7249`.
+Default branch commit: `ca7723339bb8295da7f86999250051c68c13d54e`.
 
 | File | Blob SHA | Applied decision |
 |---|---|---|
@@ -13,3 +13,13 @@ Default branch commit: `d9c4b5750e011aa807fbae8ddad3e78f8baf7249`.
 | docs/ddd/memory-store.md | b00275577f9ee60b192b4aa2712632f2e2439ef7 | append-only auditable memory |
 
 Applied public-safe guidance: typed anti-corruption boundaries; deterministic tests without timing mocks; evaluators advisory with authority none; source-bound evidence; append-only witnesses; no self-promotion.
+
+## Guidance map validation
+
+- REPOSITORY_GUIDANCE_APPLIED; LIVE_MEMORY_RETRIEVED.
+- Boundary validation -> `tenant_weights` cardinality/positivity/overflow checks -> APPLIED.
+- Undefined metrics remain explicit -> `Option<f64>` serializes as `null` -> APPLIED.
+- Deterministic dependency injection -> seeded replay plus `RunControl` -> APPLIED.
+- No unreproduced performance claims -> balanced/skewed raw evidence committed -> APPLIED.
+- Integrity at use time -> RVF verify/tamper test remains in the executed path -> APPLIED.
+- External anchor for durable evidence -> NOT_APPLICABLE to local evaluation; no external durability claim.
