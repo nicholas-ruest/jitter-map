@@ -1,12 +1,15 @@
-# Executor ledger  2026-10-09
+# Executor ledger — 2026-10-09
 
 - Worktree: `/home/ruv/.local/share/dream-machine/worktrees/jitter-map-2026-10-09-fairshare`
 - Branch: `recovery/2026-10-09-jittermap-fair-admission`
 - Base: `16110333785524a582c47a144ddbae8bc499a90b`
+- Local source commit: `94db92acad0497221cc738cb5a6e9f55259c3ab9`
+- Connector candidate commit: `c7ef47216766124ff5bf49d251d5237cee22fd1e`
+- Merged main commit: `537b269f707d6442107ce4441c7177ef9f575575`
 - Codex CLI 0.158.0: one availability attempt; unavailable because the RuOS CLI session was not authenticated.
 - Claude Code 2.1.283: authenticated; two bounded `dontAsk` invocations from the isolated worktree stalled before producing edits and were terminated. No permission bypass was used.
 - RuOS shell: performed the implementation fallback and all independent validation with Rust 1.99.0.
-- GitHub publication: governed connector only; no shell credential reuse.
+- GitHub publication: governed connector only; PR #7 merged after CI run 38016831712 succeeded.
 
 ## Executed gates
 
