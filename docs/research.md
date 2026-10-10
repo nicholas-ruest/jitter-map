@@ -14,6 +14,16 @@ AWS SDK for Rust commit `193882fe11fce9b22424ac913eeb4d03963d5700` (2026-10-02, 
 
 RuVector was inspected at `5a93328f2fceb0307c25929ed38cd7a0911fdf00`; ruvector-core stores prior outcomes and RVF crypto 0.2.0 seals receipts. MetaHarness was inspected at `9ce8b8dd89045c3b9a1f809ae58f3589029db4a4`; Darwin 0.10.3 and Flywheel 0.1.12 are advisory evaluators.
 
+## Integration matrix
+
+| Ingredient | Pin | Reused capability | Boundary / owner | Executed test | Ablation |
+|---|---|---|---|---|---|
+| AWS SDK for Rust | `193882fe11fce9b22424ac913eeb4d03963d5700` | `RetryConfig` semantics | Cargo / `jitter-adapter-aws` | `real_retry_config_translates` | local policies |
+| RuVector | `5a93328f2fceb0307c25929ed38cd7a0911fdf00` | outcome recall | Cargo / Ruvnet adapter | vector round-trip | no-memory run |
+| RVF crypto | 0.2.0 | receipt witness | Cargo / Ruvnet adapter | witness + tamper check | unsealed report |
+| MetaHarness | `9ce8b8dd89045c3b9a1f809ae58f3589029db4a4` | Darwin/Flywheel scoring | subprocess / evaluation | signed replay | frozen Rust benchmark |
+| Retry-amplification research | 2026-08-26 | RAF + adaptive-budget mechanism | domain policy | frozen ablations | AWS/local/adaptive/fair |
+
 | Candidate | Novelty | Enterprise fit | Ruvnet fit | Executable | Risk | Total |
 |---|---:|---:|---:|---:|---:|---:|
 | Fleet retry admission | 5 | 5 | 5 | 5 | 3 | 23 |

@@ -16,7 +16,9 @@ impl PolicySource for AwsPolicySource {
     fn policy(&self, kind: PolicyKind) -> Result<RetryPolicy, String> {
         let budget_gated = matches!(
             kind,
-            PolicyKind::AdaptiveBudget | PolicyKind::AdaptiveDeferral
+            PolicyKind::AdaptiveBudget
+                | PolicyKind::AdaptiveDeferral
+                | PolicyKind::TenantFairBudget
         );
         let attempts = if budget_gated {
             6

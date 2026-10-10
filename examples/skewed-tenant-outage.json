@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "requests": 600,
+  "tenants": 8,
+  "capacity_per_tick": 20,
+  "outage_ticks": 8,
+  "horizon_ticks": 240,
+  "seed": 20261009,
+  "failure": "throttling",
+  "tenant_weights": [8, 1, 1, 1, 1, 1, 1, 1],
+  "max_events": 150000
+}

@@ -1,7 +1,8 @@
+
 Darwin Mode (numeric genome) — leaderboard
   primary=0.7239  baseline  regressed=true  {shared_budget=1500 refill_per_tick=18.00 throttling_cost=1.000} ◀ winner
   primary=0.3351  g1_v1  regressed=true  {shared_budget=1315 refill_per_tick=12.00 throttling_cost=1.000}
-  primary=0.0664  g1_v3  regressed=true  {shared_budget=708 refill_per_tick=29.00 throttling_cost=1.000}
+  primary=0.0664  g1_v3  regressed=true  {shared_budget=708.0 refill_per_tick=29.00 throttling_cost=1.000}
   primary=0.0332  g1_v0  regressed=true  {shared_budget=1669 refill_per_tick=21.00 throttling_cost=2.000}
   primary=-0.0112  g1_v2  regressed=true  {shared_budget=1561 refill_per_tick=22.00 throttling_cost=2.000}
 
@@ -9,6 +10,4 @@ Winner: baseline
 Lineage: baseline
 Delta over baseline: +0.0000
 
-Run parameters: seed=42 generations=2 children=4 concurrency=1 candidate=./target/debug/jitter-candidate
-
-Artifacts: .metaharness-numeric
+Artifacts: /home/ruv/.local/share/dream-machine/worktrees/jitter-map-2026-10-09-fairshare/.metaharness-numeric

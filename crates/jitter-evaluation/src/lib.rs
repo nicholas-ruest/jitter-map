@@ -21,6 +21,7 @@ pub struct Row {
     pub attempts: u64,
     pub denied: u64,
     pub deferred: u64,
+    pub tenant_success_fairness: Option<f64>,
     pub scenario_sha256: String,
     pub authority: String,
 }
@@ -34,7 +35,22 @@ pub fn frozen_scenario() -> Scenario {
         horizon_ticks: 200,
         seed: 20261004,
         failure: FailureClass::Throttling,
+        tenant_weights: None,
         max_events: 100000,
+    }
+}
+pub fn fairness_scenario() -> Scenario {
+    Scenario {
+        version: 1,
+        requests: 600,
+        tenants: 8,
+        capacity_per_tick: 20,
+        outage_ticks: 8,
+        horizon_ticks: 240,
+        seed: 20261009,
+        failure: FailureClass::Throttling,
+        tenant_weights: Some(vec![8, 1, 1, 1, 1, 1, 1, 1]),
+        max_events: 150000,
     }
 }
 fn policy(kind: PolicyKind) -> RetryPolicy {
@@ -58,28 +74,41 @@ fn policy(kind: PolicyKind) -> RetryPolicy {
         .into(),
     }
 }
+fn row_for(scenario: &Scenario, kind: PolicyKind) -> Row {
+    let report: SimulationReport = simulate(scenario, &policy(kind), &C).unwrap();
+    Row {
+        candidate: format!("{kind:?}"),
+        raf: report.retry_amplification_factor(),
+        successes: report.successes,
+        p95: report.p95_ticks(),
+        attempts: report.attempts,
+        denied: report.denied_retries,
+        deferred: report.deferred_retries,
+        tenant_success_fairness: report.tenant_success_fairness(),
+        scenario_sha256: report.scenario_sha256,
+        authority: "none".into(),
+    }
+}
 pub fn run() -> Vec<Row> {
     [
         PolicyKind::LocalJitter,
         PolicyKind::AwsStandard,
         PolicyKind::AdaptiveBudget,
         PolicyKind::AdaptiveDeferral,
+        PolicyKind::TenantFairBudget,
     ]
     .into_iter()
-    .map(|k| {
-        let r: SimulationReport = simulate(&frozen_scenario(), &policy(k), &C).unwrap();
-        Row {
-            candidate: format!("{k:?}"),
-            raf: r.retry_amplification_factor(),
-            successes: r.successes,
-            p95: r.p95_ticks(),
-            attempts: r.attempts,
-            denied: r.denied_retries,
-            deferred: r.deferred_retries,
-            scenario_sha256: r.scenario_sha256,
-            authority: "none".into(),
-        }
-    })
+    .map(|kind| row_for(&frozen_scenario(), kind))
+    .collect()
+}
+pub fn run_fairness() -> Vec<Row> {
+    [
+        PolicyKind::AdaptiveBudget,
+        PolicyKind::AdaptiveDeferral,
+        PolicyKind::TenantFairBudget,
+    ]
+    .into_iter()
+    .map(|kind| row_for(&fairness_scenario(), kind))
     .collect()
 }
 #[cfg(test)]
@@ -92,5 +121,19 @@ mod tests {
         assert!(r.iter().all(|x| x.authority == "none"));
         assert!(r[2].raf < r[0].raf);
         assert!(r[3].deferred > 0);
+    }
+    #[test]
+    fn fairness_ablation_is_deterministic_and_scored() {
+        let first = run_fairness();
+        let second = run_fairness();
+        assert_eq!(
+            serde_json::to_string(&first).unwrap(),
+            serde_json::to_string(&second).unwrap()
+        );
+        assert!(
+            first
+                .iter()
+                .all(|row| row.tenant_success_fairness.is_some())
+        );
     }
 }
