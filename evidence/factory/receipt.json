@@ -174,15 +174,15 @@
     },
     {
       "path": "cli-receipt-fairness.json",
-      "sha256": "6871ec57e06c86f6d42784e498326a7a0f0ff37c95023b4f0c560cd6a6c43306"
+      "sha256": "3830f66941e69e39fdba5b5e6838da19dd1d07d56fe2825d7b5b364fde32e292"
     },
     {
       "path": "darwin-output.txt",
-      "sha256": "b9f08bc47b835eb0781a3ae04ad9430a64b92b968a202a485077f734e2b24c6c"
+      "sha256": "1d92ce3cbfbe12322bbd0de85fae00b0fb7b89d044872ae27990eb64a4b5c868"
     },
     {
       "path": "flywheel-replay.json",
-      "sha256": "a1c4096872ba91aa920b1ef0b7bc6db5871c94f839cee84b0eb0ddb55504bb0b"
+      "sha256": "910bf9309402a7938071a27f00465549c43d7ff7ed936165ecaa4cbd3b8a2b28"
     }
   ]
 }
