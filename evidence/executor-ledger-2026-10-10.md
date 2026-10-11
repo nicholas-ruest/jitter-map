@@ -44,3 +44,12 @@ Full workspace, dependency, evaluator and CI results are recorded after their co
 - Balanced and skewed frozen benchmarks: exit 0; raw JSON recorded.
 - Darwin numeric evaluation 0.10.3: exit 0; baseline retained.
 - Flywheel 0.1.12: exit 0; two generations, zero promotions, replay verification passed, authority none.
+
+## Governed repository publication
+
+- Local source commit: `f3cb082f9ed51b2f5ef944a26fe8969a2bcc53ce`.
+- Connector candidate commit: `396e566e93a41501e38b8225dced04fa48f000eb`.
+- Implementation PR: https://github.com/nicholas-ruest/jitter-map/pull/9
+- GitHub Actions run 38103277054 passed the exact connector candidate.
+- PR #9 merged through the governed connector to main at `118c5f1b50aa76e6b050fcea7d717a03e35d4dad`.
+- Gist publishing remains blocked; publication-ready research and build files are preserved under `publication/`.

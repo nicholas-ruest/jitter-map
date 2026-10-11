@@ -1,9 +1,9 @@
 # Project status
 
 - IMPLEMENTED: opt-in `WeightedTenantFairBudget` plus the existing equal-share ablation, weighted workload validation, typed per-tenant outcomes and Jain service fairness.
-- VALIDATED locally: Rust 1.99.0; formatting, strict Clippy, 15 locked tests, cargo-deny, CLI/RuVector/RVF vertical slice, both frozen benchmarks, Darwin 0.10.3 and Flywheel 0.1.12 all exited 0.
-- REPO_PUBLISHED: pending branch/PR publication for this increment.
-- GIST_PUBLISHED: blocked; the governed GitHub connector exposes repository/PR operations but not Gist creation, and a browser post cannot be performed noninteractively.
+- VALIDATED: local Rust 1.99.0 gates exited 0; GitHub Actions run [38103277054](https://github.com/nicholas-ruest/jitter-map/actions/runs/38103277054) passed for connector candidate `396e566e93a41501e38b8225dced04fa48f000eb`.
+- REPO_PUBLISHED: implementation PR [#9](https://github.com/nicholas-ruest/jitter-map/pull/9) merged to main at `118c5f1b50aa76e6b050fcea7d717a03e35d4dad`.
+- GIST_PUBLISHED: **BLOCKED_GIST_PUBLISH**. Research and build drafts are committed, but the governed GitHub connector does not expose Gist creation and no noninteractive authorized Gist publisher is available.
 - Documentation inventory: 26 substantive ADRs plus index; 12 substantive DDD documents plus index.
 - README: official versioned top-row marks and two project-specific animated SVGs remain present.
 - Authority: none. No evaluator or memory component may promote a policy.
