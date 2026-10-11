@@ -4,5 +4,5 @@
     "gist:research",
     "gist:build"
   ],
-  "caveat": "Receipt consistency is not independent proof of live execution or publication. PR #7 and merged main were read back; both full dated Gists remain unpublished."
+  "caveat": "Receipt consistency is not independent proof of live execution or publication."
 }
