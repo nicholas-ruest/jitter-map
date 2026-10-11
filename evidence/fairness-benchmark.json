@@ -34,5 +34,17 @@
     "tenant_success_fairness": 0.8931963478708163,
     "scenario_sha256": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
     "authority": "none"
+  },
+  {
+    "candidate": "WeightedTenantFairBudget",
+    "raf": 3.71,
+    "successes": 65,
+    "p95": 16,
+    "attempts": 2226,
+    "denied": 534,
+    "deferred": 0,
+    "tenant_success_fairness": 0.9683981576253836,
+    "scenario_sha256": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
+    "authority": "none"
   }
 ]

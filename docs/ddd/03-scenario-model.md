@@ -22,3 +22,7 @@ The context emits explicit accepted, rejected, completed, cancelled, timed-out, 
 ## Failure and validation
 
 Unit tests exercise local invariants; application contract tests exercise ports; integration tests call real upstream APIs; the end-to-end CLI covers valid, invalid, timeout, and persistence paths.
+
+## Demand weights
+
+`tenant_weights` represent offered-load proportions. They are positive, length-matched to the tenant count, and sum-bounded at the scenario boundary. They are neither authorization nor SLA entitlement. The same value object drives deterministic request assignment and the explicit weighted-admission policy.

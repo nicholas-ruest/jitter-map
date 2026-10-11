@@ -16,3 +16,7 @@ A versioned JSON Scenario contains requests, tenants, optional validated tenant 
 4. Invalid, bounded, timeout, persistence, and witness paths are tested.
 5. Frozen corpora compare local jitter, AWS standard, adaptive shared-budget, adaptive deferral, and tenant-fair admission against exact scenario digests.
 6. No evaluator or memory component can promote a policy.
+
+## 2026-10-10 proportional-service acceptance criterion
+
+For a validated skewed workload, the system shall expose equal-share and demand-weighted tenant admission as separate executable policies. The weighted policy must be deterministic, must not change other policies, and must improve Jain fairness of per-tenant success ratios over equal-share admission without reducing total successes on the frozen fixture. Promotion still requires preserving the adaptive-drop success baseline.

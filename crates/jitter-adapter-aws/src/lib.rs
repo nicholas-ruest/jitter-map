@@ -19,6 +19,7 @@ impl PolicySource for AwsPolicySource {
             PolicyKind::AdaptiveBudget
                 | PolicyKind::AdaptiveDeferral
                 | PolicyKind::TenantFairBudget
+                | PolicyKind::WeightedTenantFairBudget
         );
         let attempts = if budget_gated {
             6

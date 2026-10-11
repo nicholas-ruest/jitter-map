@@ -1,11 +1,19 @@
 # Project status
 
-- IMPLEMENTED: six-crate Rust vertical slice with AWS RetryConfig, RuVector, RVF, and MetaHarness paths
-- IMPLEMENTED: opt-in `TenantFairBudget` with weighted workloads, rotating per-tenant admission, typed outcomes, and explicit Jain fairness
-- VALIDATED: candidate `c7ef47216766124ff5bf49d251d5237cee22fd1e`; repository CI run 38016831712 passed dependency policy, formatting, strict Clippy, 14 locked tests, and both benchmarks
-- REPO_PUBLISHED: PR [#7](https://github.com/nicholas-ruest/jitter-map/pull/7) merged; main read back at `537b269f707d6442107ce4441c7177ef9f575575`
-- RESEARCH_GIST: BLOCKED_GIST_PUBLISH
-- BUILD_GIST: prior partial recovery post exists; full announcement remains BLOCKED_GIST_PUBLISH
-- BUILT: no
+- IMPLEMENTED: opt-in `WeightedTenantFairBudget` plus the existing equal-share ablation, weighted workload validation, typed per-tenant outcomes and Jain service fairness.
+- VALIDATED locally: Rust 1.99.0; formatting, strict Clippy, 15 locked tests, cargo-deny, CLI/RuVector/RVF vertical slice, both frozen benchmarks, Darwin 0.10.3 and Flywheel 0.1.12 all exited 0.
+- REPO_PUBLISHED: pending branch/PR publication for this increment.
+- GIST_PUBLISHED: blocked; the governed GitHub connector exposes repository/PR operations but not Gist creation, and a browser post cannot be performed noninteractively.
+- Documentation inventory: 26 substantive ADRs plus index; 12 substantive DDD documents plus index.
+- README: official versioned top-row marks and two project-specific animated SVGs remain present.
+- Authority: none. No evaluator or memory component may promote a policy.
 
-Decision: **REVISE**. The mechanism closes the ADR-0021 implementation gap, but the skewed fixture moves fairness from 0.1250 to 0.8932 while successes fall from 72 to 63. Promotion requires revising the fairness/throughput boundary and publishing both dated Gists.
+Frozen skewed workload (`8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7`):
+
+| Candidate | RAF | Successes | p95 | Denied | Jain fairness |
+|---|---:|---:|---:|---:|---:|
+| Adaptive drop | 3.7017 | 72 | 16 | 527 | 0.1250 |
+| Equal-share tenant fair | 3.7100 | 63 | 15 | 536 | 0.8932 |
+| Demand-weighted tenant fair | 3.7100 | 65 | 16 | 534 | 0.9684 |
+
+Decision: **REVISE**. Demand weighting materially improves service fairness and recovers two successes versus equal-share admission, but it still does not preserve the adaptive-drop success baseline. It is not promoted.
