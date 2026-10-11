@@ -22,3 +22,7 @@ The context emits explicit accepted, rejected, deferred, completed, cancelled, t
 ## Failure and validation
 
 Unit tests exercise local invariants; application contract tests exercise ports; integration tests call real upstream APIs; the end-to-end CLI covers valid, invalid, timeout, and persistence paths.
+
+## Proportional admission
+
+The Admission Budget context now exposes two fair schedulers: equal-share round robin and demand-weighted round robin. Both own only queue order; the shared budget continues to own retry admission. Evaluation must compare both schedulers with the throughput-first adaptive baseline and may not promote either.

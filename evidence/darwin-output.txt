@@ -10,4 +10,4 @@ Winner: baseline
 Lineage: baseline
 Delta over baseline: +0.0000
 
-Artifacts: /home/ruv/.local/share/dream-machine/worktrees/jitter-map-2026-10-09-fairshare/.metaharness-numeric
+Artifacts: /home/ruv/.local/share/dream-machine/worktrees/jitter-map-2026-10-10-weighted/.metaharness-numeric

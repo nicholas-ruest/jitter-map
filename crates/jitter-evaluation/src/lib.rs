@@ -96,6 +96,7 @@ pub fn run() -> Vec<Row> {
         PolicyKind::AdaptiveBudget,
         PolicyKind::AdaptiveDeferral,
         PolicyKind::TenantFairBudget,
+        PolicyKind::WeightedTenantFairBudget,
     ]
     .into_iter()
     .map(|kind| row_for(&frozen_scenario(), kind))
@@ -106,6 +107,7 @@ pub fn run_fairness() -> Vec<Row> {
         PolicyKind::AdaptiveBudget,
         PolicyKind::AdaptiveDeferral,
         PolicyKind::TenantFairBudget,
+        PolicyKind::WeightedTenantFairBudget,
     ]
     .into_iter()
     .map(|kind| row_for(&fairness_scenario(), kind))

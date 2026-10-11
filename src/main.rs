@@ -30,6 +30,7 @@ enum PolicyArg {
     Adaptive,
     AdaptiveDeferral,
     TenantFairBudget,
+    WeightedTenantFairBudget,
 }
 fn main() {
     if let Err(error) = run() {
@@ -48,6 +49,7 @@ fn run() -> Result<()> {
         PolicyArg::Adaptive => PolicyKind::AdaptiveBudget,
         PolicyArg::AdaptiveDeferral => PolicyKind::AdaptiveDeferral,
         PolicyArg::TenantFairBudget => PolicyKind::TenantFairBudget,
+        PolicyArg::WeightedTenantFairBudget => PolicyKind::WeightedTenantFairBudget,
     };
     let memory = RuvectorMemory::open(&cli.memory).map_err(anyhow::Error::msg)?;
     let receipt = evaluate(

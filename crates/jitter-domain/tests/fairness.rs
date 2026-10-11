@@ -39,6 +39,13 @@ fn policy(max_attempts: u32) -> RetryPolicy {
     }
 }
 
+fn weighted_policy(max_attempts: u32) -> RetryPolicy {
+    RetryPolicy {
+        kind: PolicyKind::WeightedTenantFairBudget,
+        ..policy(max_attempts)
+    }
+}
+
 #[test]
 fn weighted_assignment_and_fair_replay_are_deterministic() {
     let first = simulate(&scenario(), &policy(5), &Control).unwrap();
@@ -48,6 +55,21 @@ fn weighted_assignment_and_fair_replay_are_deterministic() {
     assert_eq!(first.tenant_attempts.len(), 3);
     assert_eq!(first.tenant_successes.len(), 3);
     assert!(first.tenant_success_fairness().is_some());
+}
+
+#[test]
+fn weighted_policy_tracks_demand_and_improves_service_fairness() {
+    let equal_share = simulate(&scenario(), &policy(5), &Control).unwrap();
+    let weighted = simulate(&scenario(), &weighted_policy(5), &Control).unwrap();
+    assert_eq!(
+        weighted,
+        simulate(&scenario(), &weighted_policy(5), &Control).unwrap()
+    );
+    assert!(weighted.successes >= equal_share.successes);
+    assert!(
+        weighted.tenant_success_fairness().unwrap()
+            > equal_share.tenant_success_fairness().unwrap()
+    );
 }
 
 #[test]

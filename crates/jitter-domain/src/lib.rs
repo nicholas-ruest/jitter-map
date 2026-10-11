@@ -21,6 +21,7 @@ pub enum PolicyKind {
     AdaptiveBudget,
     AdaptiveDeferral,
     TenantFairBudget,
+    WeightedTenantFairBudget,
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Scenario {
@@ -179,6 +180,32 @@ fn fair_order(batch: Vec<Event>, tick: u32, tenants: u32) -> Vec<Event> {
     ordered
 }
 
+fn weighted_fair_order(batch: Vec<Event>, tick: u32, weights: &[u32]) -> Vec<Event> {
+    let tenants = weights.len() as u32;
+    let mut queues = vec![VecDeque::new(); weights.len()];
+    for event in batch {
+        queues[event.1 as usize].push_back(event);
+    }
+    let start = tick % tenants;
+    let mut ordered = Vec::new();
+    loop {
+        let before = ordered.len();
+        for offset in 0..tenants {
+            let tenant = (start + offset) % tenants;
+            for _ in 0..weights[tenant as usize] {
+                let Some(event) = queues[tenant as usize].pop_front() else {
+                    break;
+                };
+                ordered.push(event);
+            }
+        }
+        if ordered.len() == before {
+            break;
+        }
+    }
+    ordered
+}
+
 pub fn simulate(
     s: &Scenario,
     p: &RetryPolicy,
@@ -212,10 +239,19 @@ pub fn simulate(
         while q.peek().is_some_and(|Reverse(event)| event.0 == tick) {
             batch.push(q.pop().expect("peeked event exists").0);
         }
-        let batch = if p.kind == PolicyKind::TenantFairBudget {
-            fair_order(batch, tick, s.tenants)
-        } else {
-            batch
+        let batch = match p.kind {
+            PolicyKind::TenantFairBudget => fair_order(batch, tick, s.tenants),
+            PolicyKind::WeightedTenantFairBudget => {
+                let equal_weights;
+                let weights = if let Some(weights) = s.tenant_weights.as_deref() {
+                    weights
+                } else {
+                    equal_weights = vec![1; s.tenants as usize];
+                    &equal_weights
+                };
+                weighted_fair_order(batch, tick, weights)
+            }
+            _ => batch,
         };
         for (tick, tenant, id, attempt) in batch {
             if ctl.cancelled() {
@@ -259,6 +295,7 @@ pub fn simulate(
                 PolicyKind::AdaptiveBudget
                     | PolicyKind::AdaptiveDeferral
                     | PolicyKind::TenantFairBudget
+                    | PolicyKind::WeightedTenantFairBudget
             );
             if budget_gated && budget < cost {
                 if p.kind == PolicyKind::AdaptiveDeferral && p.refill_per_tick > 0 {

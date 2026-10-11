@@ -30,3 +30,7 @@ RuVector was inspected at `5a93328f2fceb0307c25929ed38cd7a0911fdf00`; ruvector-c
 | Model traffic shaper | 3 | 5 | 3 | 4 | 3 | 18 |
 | Config linter | 2 | 4 | 2 | 5 | 2 | 15 |
 | Learned retry optimizer | 4 | 3 | 4 | 2 | 5 | 12 |
+
+## Supplemental experiment - 2026-10-10
+
+The prior equal-share result improved service-rate equality but over-allocated scarce capacity to low-demand tenants. A demand-weighted round quantum was selected as a bounded follow-up because it preserves deterministic replay and keeps equal-share runnable as an ablation. On the unchanged skewed fixture it improved Jain fairness from 0.893196 to 0.968398 and successes from 63 to 65 at identical 3.7100 RAF. The adaptive-drop baseline remained higher at 72 successes; no promotion claim follows.

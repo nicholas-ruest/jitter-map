@@ -9,3 +9,5 @@
 | Auditable memory | Evidence | jitter-adapter-ruvnet | 0008, 0009, 0014 | real_vector_round_trip_and_witness |
 | Frozen comparison | Evaluation | jitter-evaluation | 0003, 0017, 0019, 0022 | candidates_share_digest_and_never_promote |
 | CLI slice | Workflow | jitter-map | 0024, 0025 | workflow invocation |
+
+| Proportional service fairness | Scenario / Admission Budget / Evaluation | jitter-domain, jitter-evaluation, jitter-map | ADR-0021 | `weighted_policy_tracks_demand_and_improves_service_fairness`; `jitter-fairness-benchmark` | `evidence/fairness-benchmark.json` |
