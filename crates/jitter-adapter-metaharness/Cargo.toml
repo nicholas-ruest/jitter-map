@@ -1,0 +1,16 @@
+[package]
+name = "jitter-adapter-metaharness"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Infrastructure Adapter: implements FlywheelSink, bridging evaluation scores to the Darwin/Flywheel/Metaharness loop"
+
+[dependencies]
+jitter-ports = { version = "0.2.0", path = "../jitter-ports" }
+serde_json.workspace = true
+
+[dev-dependencies]
+jitter-contract-tests = { version = "0.2.0", path = "../jitter-contract-tests" }
+tempfile.workspace = true

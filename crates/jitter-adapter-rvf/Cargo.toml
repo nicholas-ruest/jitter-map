@@ -1,0 +1,17 @@
+[package]
+name = "jitter-adapter-rvf"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Infrastructure Adapter: implements WitnessSink, writing RVF witness artifacts binding run evidence"
+
+[dependencies]
+hex.workspace = true
+jitter-outcome = { version = "0.2.0", path = "../jitter-outcome" }
+jitter-ports = { version = "0.2.0", path = "../jitter-ports" }
+rvf-crypto.workspace = true
+
+[dev-dependencies]
+jitter-contract-tests = { version = "0.2.0", path = "../jitter-contract-tests" }

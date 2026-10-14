@@ -1,0 +1,15 @@
+[package]
+name = "jitter-adapter-ruflo"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Infrastructure Adapter: implements HarnessSink, reporting tick/interruption signals to RuFlo orchestration"
+
+[dependencies]
+jitter-outcome = { version = "0.2.0", path = "../jitter-outcome" }
+jitter-ports = { version = "0.2.0", path = "../jitter-ports" }
+
+[dev-dependencies]
+jitter-contract-tests = { version = "0.2.0", path = "../jitter-contract-tests" }

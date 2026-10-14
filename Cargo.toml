@@ -1,5 +1,28 @@
 [workspace]
-members = ["crates/jitter-domain", "crates/jitter-application", "crates/jitter-adapter-aws", "crates/jitter-adapter-ruvnet", "crates/jitter-evaluation"]
+members = [
+    "crates/jitter-scenario",
+    "crates/jitter-workload",
+    "crates/jitter-policy",
+    "crates/jitter-budget",
+    "crates/jitter-scheduler",
+    "crates/jitter-outcome",
+    "crates/jitter-simulation",
+    "crates/jitter-recovery",
+    "crates/jitter-ports",
+    "crates/jitter-application",
+    "crates/jitter-adapter-aws",
+    "crates/jitter-adapter-ruvector",
+    "crates/jitter-adapter-rvf",
+    "crates/jitter-adapter-ruflo",
+    "crates/jitter-adapter-metaharness",
+    "crates/jitter-evidence",
+    "crates/jitter-config",
+    "crates/jitter-observability",
+    "crates/jitter-service",
+    "crates/jitter-cli",
+    "crates/jitter-evaluation",
+    "crates/jitter-contract-tests",
+]
 resolver = "2"
 
 [workspace.package]
@@ -21,26 +44,5 @@ serde_json = "1.0.145"
 sha2 = "0.10.9"
 tempfile = "3.23.0"
 thiserror = "2.0.17"
-
-[package]
-name = "jitter-map"
-version.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-license.workspace = true
-repository.workspace = true
-description = "Fleet-level retry admission simulator with auditable outcome memory"
-readme = "README.md"
-
-[dependencies]
-anyhow.workspace = true
-clap.workspace = true
-jitter-application = { version = "0.2.0", path = "crates/jitter-application" }
-jitter-adapter-aws = { version = "0.2.0", path = "crates/jitter-adapter-aws" }
-jitter-adapter-ruvnet = { version = "0.2.0", path = "crates/jitter-adapter-ruvnet" }
-jitter-domain = { version = "0.2.0", path = "crates/jitter-domain" }
-serde_json.workspace = true
-
-[[bin]]
-name = "jitter-map"
-path = "src/main.rs"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }

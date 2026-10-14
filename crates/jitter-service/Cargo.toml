@@ -1,0 +1,31 @@
+[package]
+name = "jitter-service"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Composition Root: long-running executable wiring every adapter into jitter-application over a service boundary"
+
+[dependencies]
+jitter-adapter-aws = { version = "0.2.0", path = "../jitter-adapter-aws" }
+jitter-adapter-metaharness = { version = "0.2.0", path = "../jitter-adapter-metaharness" }
+jitter-adapter-ruvector = { version = "0.2.0", path = "../jitter-adapter-ruvector" }
+jitter-adapter-rvf = { version = "0.2.0", path = "../jitter-adapter-rvf" }
+jitter-application = { version = "0.2.0", path = "../jitter-application" }
+jitter-evaluation = { version = "0.2.0", path = "../jitter-evaluation" }
+jitter-config = { version = "0.2.0", path = "../jitter-config" }
+jitter-observability = { version = "0.2.0", path = "../jitter-observability" }
+jitter-outcome = { version = "0.2.0", path = "../jitter-outcome" }
+jitter-ports = { version = "0.2.0", path = "../jitter-ports" }
+jitter-scenario = { version = "0.2.0", path = "../jitter-scenario" }
+jitter-simulation = { version = "0.2.0", path = "../jitter-simulation" }
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[[bin]]
+name = "jitter-service"
+path = "src/main.rs"

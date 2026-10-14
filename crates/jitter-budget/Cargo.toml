@@ -1,0 +1,12 @@
+[package]
+name = "jitter-budget"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Domain Core: consumable per-tenant/global retry budget, refill, and exhaustion"
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true

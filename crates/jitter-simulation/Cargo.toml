@@ -1,0 +1,20 @@
+[package]
+name = "jitter-simulation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Domain Orchestration: pure tick-loop composition of all Domain Core crates into one deterministic run"
+
+[dependencies]
+jitter-budget = { version = "0.2.0", path = "../jitter-budget" }
+jitter-outcome = { version = "0.2.0", path = "../jitter-outcome" }
+jitter-policy = { version = "0.2.0", path = "../jitter-policy" }
+jitter-scenario = { version = "0.2.0", path = "../jitter-scenario" }
+jitter-scheduler = { version = "0.2.0", path = "../jitter-scheduler" }
+jitter-workload = { version = "0.2.0", path = "../jitter-workload" }
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

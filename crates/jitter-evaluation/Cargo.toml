@@ -1,17 +1,24 @@
 [package]
-name="jitter-evaluation"
-version.workspace=true
-edition.workspace=true
-rust-version.workspace=true
-license.workspace=true
+name = "jitter-evaluation"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Fitness Evaluation: scores competing policy/budget candidates (Darwin/Flywheel) against recorded outcomes"
+
 [dependencies]
-jitter-domain={version="0.2.0",path="../jitter-domain"}
-serde.workspace=true
-serde_json.workspace=true
-[[bin]]
-name="jitter-benchmark"
-path="src/main.rs"
+jitter-outcome = { version = "0.2.0", path = "../jitter-outcome" }
+jitter-ports = { version = "0.2.0", path = "../jitter-ports" }
+jitter-scenario = { version = "0.2.0", path = "../jitter-scenario" }
+jitter-simulation = { version = "0.2.0", path = "../jitter-simulation" }
+serde.workspace = true
+serde_json.workspace = true
 
 [[bin]]
-name="jitter-candidate"
-path="src/candidate.rs"
+name = "jitter-benchmark"
+path = "src/main.rs"
+
+[[bin]]
+name = "jitter-candidate"
+path = "src/candidate.rs"
