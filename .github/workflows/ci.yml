@@ -17,5 +17,7 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
       - run: cargo test --workspace --all-targets --all-features --locked
+      - name: Gate 1 — dependency-direction structural checker (docs/architecture.md §8)
+        run: python3 scripts/check_dependency_direction.py
       - run: cargo run --locked -p jitter-evaluation --bin jitter-benchmark > evidence/ci-benchmark.json
       - run: cargo run --locked -p jitter-evaluation --bin jitter-fairness-benchmark > evidence/ci-fairness-benchmark.json
