@@ -1,0 +1,30 @@
+name: Apply validated recovery transfer
+on:
+  push:
+    branches:
+      - recovery/2026-10-11-jittermap-20-crate-design
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]' && contains(github.event.head_commit.message, 'stage validated recovery patch')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify and apply exact validated patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .factory-transfer/patch-* > /tmp/jitter-map.patch.gz.b64
+          printf '%s  %s\n' '63b523011660e2b039419b45b486907fdd2e99122cef6fb343ffb95399969198' '/tmp/jitter-map.patch.gz.b64' | sha256sum --check
+          base64 --decode /tmp/jitter-map.patch.gz.b64 | gzip --decompress > /tmp/jitter-map.patch
+          git apply --index --binary /tmp/jitter-map.patch
+          rm -rf .factory-transfer .github/workflows/apply-validated-recovery.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'feat(workspace): publish validated twenty-two-crate recovery'
+          git push origin HEAD:recovery/2026-10-11-jittermap-20-crate-design
