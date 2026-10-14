@@ -1,0 +1,10 @@
+{
+  "scenario_digest": "79597be9cc2c46659fcb2bfa3b365c4cdbd23ad313efa8608e605eb72ca760e6",
+  "outcome_digest": "bda4d7e36a03bf0124be411f6e362fb0cb7b5cd48e1db6ca3b74ff4911ece1ab",
+  "witness_digest": "9656a92904215571e021c3490ce5762620acb9861bf0f630a3526dba2d89717c",
+  "strategy": "weighted_tenant_fair_budget",
+  "retry_amplification_factor": 1.313,
+  "p95_ticks": 21,
+  "tenant_success_fairness": 0.0019999999999999996,
+  "authority": "none"
+}

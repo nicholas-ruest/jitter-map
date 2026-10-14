@@ -1,10 +1,15 @@
 [package]
-name="jitter-adapter-aws"
-version.workspace=true
-edition.workspace=true
-rust-version.workspace=true
-license.workspace=true
+name = "jitter-adapter-aws"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Infrastructure Adapter: implements RetryConfigSource against AWS RetryConfig"
+
 [dependencies]
-aws-smithy-types.workspace=true
-jitter-application={version="0.2.0",path="../jitter-application"}
-jitter-domain={version="0.2.0",path="../jitter-domain"}
+aws-smithy-types.workspace = true
+jitter-ports = { version = "0.2.0", path = "../jitter-ports" }
+
+[dev-dependencies]
+jitter-contract-tests = { version = "0.2.0", path = "../jitter-contract-tests" }

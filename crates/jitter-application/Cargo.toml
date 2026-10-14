@@ -1,10 +1,18 @@
 [package]
-name="jitter-application"
-version.workspace=true
-edition.workspace=true
-rust-version.workspace=true
-license.workspace=true
+name = "jitter-application"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Hexagonal Boundary: use-case orchestration generic over ports"
+
 [dependencies]
-jitter-domain={version="0.2.0",path="../jitter-domain"}
-serde.workspace=true
-thiserror.workspace=true
+jitter-evidence = { version = "0.2.0", path = "../jitter-evidence" }
+jitter-outcome = { version = "0.2.0", path = "../jitter-outcome" }
+jitter-ports = { version = "0.2.0", path = "../jitter-ports" }
+jitter-recovery = { version = "0.2.0", path = "../jitter-recovery" }
+jitter-scenario = { version = "0.2.0", path = "../jitter-scenario" }
+jitter-simulation = { version = "0.2.0", path = "../jitter-simulation" }
+jitter-workload = { version = "0.2.0", path = "../jitter-workload" }
+thiserror.workspace = true

@@ -18,20 +18,22 @@ Fleet-level retry admission with replayable evidence. JitterMap answers a system
 - aggregate and per-tenant RAF, success, denial, deferral, p95, and Jain fairness evidence;
 - real RuVector outcome insert/search/read-back;
 - real RVF witness-chain sealing;
-- bounded MetaHarness Darwin/Flywheel evaluation with authority none.
+- real typed Ruflo and MetaHarness port implementations with tested local primitives and an append-only evidence feed, including bounded MetaHarness Darwin/Flywheel evaluation with authority none; their live external transport/process round trips remain partial and unproven.
 
 ## Quickstart
 
-    cargo run --locked -- --scenario examples/correlated-outage.json --policy adaptive --memory .jitter-map-memory
-    cargo run --locked -- --scenario examples/correlated-outage.json --policy adaptive-deferral --memory .jitter-map-memory
-    cargo run --locked -- --scenario examples/skewed-tenant-outage.json --policy tenant-fair-budget --memory .jitter-map-memory
-    cargo run --locked -- --scenario examples/skewed-tenant-outage.json --policy weighted-tenant-fair-budget --memory .jitter-map-memory
+    cargo run --locked -p jitter-cli --bin jitter-map -- --scenario examples/correlated-outage.json --policy adaptive --memory .jitter-map-memory
+    cargo run --locked -p jitter-cli --bin jitter-map -- --scenario examples/correlated-outage.json --policy adaptive-deferral --memory .jitter-map-memory
+    cargo run --locked -p jitter-cli --bin jitter-map -- --scenario examples/skewed-tenant-outage.json --policy tenant-fair-budget --memory .jitter-map-memory
+    cargo run --locked -p jitter-cli --bin jitter-map -- --scenario examples/skewed-tenant-outage.json --policy weighted-tenant-fair-budget --memory .jitter-map-memory
+    cargo run --locked -p jitter-cli --bin jitter-map -- --scenario fixtures/fleet-retry-storm-22.json --policy weighted-tenant-fair-budget --memory .jitter-map-memory --interrupt-after 6 --checkpoint-out /tmp/checkpoint.json
+    cargo run --locked -p jitter-cli --bin jitter-map -- --scenario fixtures/fleet-retry-storm-22.json --policy weighted-tenant-fair-budget --memory .jitter-map-memory --replay /tmp/checkpoint.json
     cargo run --locked -p jitter-evaluation --bin jitter-benchmark
     cargo run --locked -p jitter-evaluation --bin jitter-fairness-benchmark
 
 `--policy` accepts `local`, `aws`, `adaptive`, `adaptive-deferral`, `tenant-fair-budget`, or `weighted-tenant-fair-budget`. Equal-share fairness admits one event per non-empty tenant per round; demand-weighted fairness admits each tenant's validated scenario weight per round. Both rotate the starting tenant by tick and preserve shared-budget drop semantics; see [ADR-0021](docs/adrs/0021-tenant-fairness.md). The JSON receipt includes the exact scenario digest, typed aggregate/per-tenant report, nearest prior outcome IDs, witness root, and authority none.
 
-MetaHarness evaluation uses the same compiled domain engine through `jitter-candidate`. Darwin supplies a numeric genome over stdin; Flywheel evaluates concrete policies, seals lineage, replays the frozen gate, and records zero autonomous promotions.
+MetaHarness evaluation uses `jitter-candidate`, which exposes the same compiled domain engine for numeric evaluation. The current Darwin receipt was an availability-only suite using `npm test`, not an executed genome evaluation. The current Flywheel receipt separately executed the actual `jitter-benchmark` and `jitter-fairness-benchmark` binaries, seals lineage, replays the frozen gate, and made one internal advisory selection and zero repository-level promotions; it is advisory only.
 
 ## Execution and data flow
 
@@ -39,14 +41,21 @@ MetaHarness evaluation uses the same compiled domain engine through `jitter-cand
 
 ## Workspace
 
+22 crates (ADR-0027, ADR-0101–ADR-0122), one bounded context per row of
+docs/architecture.md §2:
+
 | Crate | Responsibility |
 |---|---|
-| jitter-domain | typed scenario/policy model and deterministic engine |
-| jitter-application | workflow and ports |
-| jitter-adapter-aws | real AWS Smithy RetryConfig translation |
-| jitter-adapter-ruvnet | RuVector memory and RVF sealing |
-| jitter-evaluation | frozen baselines and ablations |
-| jitter-map | usable CLI composition root |
+| jitter-scenario, jitter-workload, jitter-policy, jitter-budget, jitter-scheduler, jitter-outcome | Domain Core: pure, deterministic scenario/policy/budget/scheduling/outcome model |
+| jitter-simulation, jitter-recovery | Domain Orchestration: the tick-loop kernel and checkpoint/replay |
+| jitter-ports, jitter-application | Hexagonal Boundary: 5 port traits and the use case orchestrating them |
+| jitter-adapter-aws, jitter-adapter-ruvector, jitter-adapter-rvf, jitter-adapter-ruflo, jitter-adapter-metaharness | Infrastructure Adapters: real executed AWS/RuVector/RVF boundaries, plus real typed Ruflo/MetaHarness port implementations whose live external transport/process round trips remain partial |
+| jitter-evidence, jitter-config, jitter-observability | Cross-Cutting Support: receipt binding, typed config, tracing |
+| jitter-service, jitter-cli | Composition Roots: the HTTP service and the `jitter-map` CLI binary |
+| jitter-evaluation, jitter-contract-tests | Fitness Evaluation and Contract Verification |
+
+See docs/architecture.md for the full dependency-direction diagram and
+`scripts/check_dependency_direction.py` for the automated check that enforces it.
 
 ## Upstream composition
 
@@ -55,11 +64,11 @@ MetaHarness evaluation uses the same compiled domain engine through `jitter-cand
 | AWS SDK for Rust | constructs/translates aws_smithy_types retry config | 193882fe11fce9b22424ac913eeb4d03963d5700 |
 | RuVector | VectorDB insert/search/get outcome memory | source 5a93328f, crate 2.3.1 |
 | RVF | witness creation and verification | rvf-crypto 0.2.0 |
-| MetaHarness | bounded Darwin validation and Flywheel replay | source 9ce8b8d, packages 0.10.3/0.1.12 |
+| MetaHarness | `jitter-candidate` exposes the compiled engine for numeric evaluation; the Darwin receipt is an availability-only `npm test` suite, and the Flywheel receipt separately executes the real `jitter-benchmark`/`jitter-fairness-benchmark` binaries and is advisory only | source 9ce8b8d, packages 0.10.3/0.1.12 |
 
 ## Architecture and evidence
 
-The [specification](docs/specification.md), [architecture](docs/architecture.md), [26 ADRs](docs/adrs/index.md), [12 DDD documents](docs/ddd/index.md), [frozen contract](docs/implementation-contract.md), [research](docs/research.md), and [traceability](docs/traceability.md) define the build. CI results and benchmark receipts are recorded under evidence.
+The [specification](docs/specification.md), [architecture](docs/architecture.md), [49 ADRs](docs/adrs/index.md) (27 design, 0001–0027, plus 22 implementation, 0101–0122), [12 DDD documents](docs/ddd/index.md), [frozen contract](docs/implementation-contract.md), [research](docs/research.md), and [traceability](docs/traceability.md) define the build. CI results and benchmark receipts are recorded under evidence.
 
 ## Frozen benchmark
 
@@ -83,4 +92,4 @@ A second frozen fixture assigns demand weights `[8,1,1,1,1,1,1,1]`. Equal-share 
 
 ## Maturity and limitations
 
-This is a pre-1.0 evaluation system, not an SDK interceptor, deployment controller, or claim of production superiority. Neither tenant-fair candidate preserves the adaptive-drop success baseline on the skewed fixture. The discrete-event model does not reproduce every network, SDK, or scheduler behavior. RuVector local file storage is evaluation-only; production persistence must remain behind authorized RuVector/Cloud SQL infrastructure. MetaHarness can propose and score policy candidates but cannot promote them. No component may self-promote a policy.
+This is a pre-1.0 evaluation system, not an SDK interceptor, deployment controller, or claim of production superiority. Neither tenant-fair candidate preserves the adaptive-drop success baseline on the skewed fixture. The discrete-event model does not reproduce every network, SDK, or scheduler behavior. RuVector local file storage is evaluation-only; production persistence must remain behind authorized RuVector/Cloud SQL infrastructure. MetaHarness can propose and score policy candidates but cannot promote them. No component may self-promote a policy. The Ruflo adapter's live network transport and the MetaHarness adapter's live external process round trip are both partial and unproven in this environment; only their local port contracts and the append-only evidence feed are tested.

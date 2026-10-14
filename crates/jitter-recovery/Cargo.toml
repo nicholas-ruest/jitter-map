@@ -1,0 +1,19 @@
+[package]
+name = "jitter-recovery"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Domain Orchestration: checkpoint capture and deterministic replay from an interrupted run"
+
+[dependencies]
+jitter-budget = { version = "0.2.0", path = "../jitter-budget" }
+jitter-outcome = { version = "0.2.0", path = "../jitter-outcome" }
+jitter-scenario = { version = "0.2.0", path = "../jitter-scenario" }
+jitter-scheduler = { version = "0.2.0", path = "../jitter-scheduler" }
+jitter-simulation = { version = "0.2.0", path = "../jitter-simulation" }
+jitter-workload = { version = "0.2.0", path = "../jitter-workload" }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true

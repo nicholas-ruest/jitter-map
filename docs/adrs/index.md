@@ -1,6 +1,8 @@
 # Architecture decision records
 
-These 26 accepted decisions freeze the bounded MVP. Each records alternatives, consequences, and executable validation.
+These 49 accepted decisions freeze the bounded MVP, its planned migration, and the
+22-crate implementation that realizes it. Each records alternatives, consequences,
+and executable validation.
 
 - [ADR-0001: System-level retry admission](./0001-system-level-retry-admission.md)
 - [ADR-0002: Deterministic discrete-event engine](./0002-deterministic-discrete-event-engine.md)
@@ -28,3 +30,26 @@ These 26 accepted decisions freeze the bounded MVP. Each records alternatives, c
 - [ADR-0024: CLI JSON contract](./0024-cli-json-contract.md)
 - [ADR-0025: Conservative repository recovery](./0025-conservative-repository-recovery.md)
 - [ADR-0026: Adaptive deferral admission](./0026-adaptive-deferral-admission.md)
+- [ADR-0027: Twenty-two-crate planned migration](./0027-twenty-two-crate-planned-migration.md)
+- [ADR-0101: Domain purity boundary](./0101-domain-purity-boundary.md)
+- [ADR-0102: Deterministic generation](./0102-deterministic-generation.md)
+- [ADR-0103: Policy strategy pattern](./0103-policy-strategy-pattern.md)
+- [ADR-0104: Budget value object](./0104-budget-value-object.md)
+- [ADR-0105: Deterministic scheduler](./0105-deterministic-scheduler.md)
+- [ADR-0106: Domain event log](./0106-domain-event-log.md)
+- [ADR-0107: Pure simulation kernel](./0107-pure-simulation-kernel.md)
+- [ADR-0108: Checkpoint and replay](./0108-checkpoint-and-replay.md)
+- [ADR-0109: Ports and adapters boundary](./0109-ports-and-adapters-boundary.md)
+- [ADR-0110: Application layer independence](./0110-application-layer-independence.md)
+- [ADR-0111: AWS adapter isolation](./0111-aws-adapter-isolation.md)
+- [ADR-0112: RuVector adapter isolation](./0112-ruvector-adapter-isolation.md)
+- [ADR-0113: Witness binding](./0113-witness-binding.md)
+- [ADR-0114: Orchestration signal boundary](./0114-orchestration-signal-boundary.md)
+- [ADR-0115: Evaluation feedback boundary](./0115-evaluation-feedback-boundary.md)
+- [ADR-0116: Evidence receipt model](./0116-evidence-receipt-model.md)
+- [ADR-0117: Typed config boundary](./0117-typed-config-boundary.md)
+- [ADR-0118: Cross-cutting observability](./0118-cross-cutting-observability.md)
+- [ADR-0119: Composition root — service](./0119-composition-root-service.md)
+- [ADR-0120: Composition root — CLI](./0120-composition-root-cli.md)
+- [ADR-0121: Evaluation boundary](./0121-evaluation-boundary.md)
+- [ADR-0122: Shared contract test suite](./0122-shared-contract-test-suite.md)

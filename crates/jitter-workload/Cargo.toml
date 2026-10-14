@@ -1,0 +1,15 @@
+[package]
+name = "jitter-workload"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Domain Core: deterministic generation of the retry request trace from a scenario + seed"
+
+[dependencies]
+jitter-scenario = { version = "0.2.0", path = "../jitter-scenario" }
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

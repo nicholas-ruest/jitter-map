@@ -1,0 +1,14 @@
+[package]
+name = "jitter-outcome"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Domain Core: typed result events, per-run aggregation, and the admission-strategy identifier"
+
+[dependencies]
+serde.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

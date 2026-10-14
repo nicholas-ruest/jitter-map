@@ -1,0 +1,11 @@
+[package]
+name = "jitter-policy"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Domain Core: pure decision rule mapping attempt history to next-retry delay/admission"
+
+[dependencies]
+jitter-scenario = { version = "0.2.0", path = "../jitter-scenario" }

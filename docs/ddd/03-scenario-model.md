@@ -1,12 +1,16 @@
 # Scenario aggregate
 
-## Purpose and model
+## Context
 
-Scenario owns requests, tenants, optional positive tenant weights, capacity and outage windows, horizon, seed, and event ceiling. It rejects nonpositive counts, weight/cardinality mismatches, overflow, invalid horizons, unsupported versions, and unsafe event limits before allocation. Weighted assignment is deterministic and becomes part of the scenario digest. Aggregate roots protect invariants before state transitions; entities retain stable scenario identity; immutable value objects cross boundaries; domain events are append-only facts.
+Scenario owns requests, tenants, optional positive tenant weights, capacity and outage windows, horizon, seed, and event ceiling. It rejects nonpositive counts, weight/cardinality mismatches, overflow, invalid horizons, unsupported versions, and unsafe event limits before allocation. Weighted assignment is deterministic and becomes part of the scenario digest. Aggregate roots protect invariants before state transitions; entities retain stable scenario identity; immutable value objects cross boundaries; domain events are append-only facts. In the planned 22-crate map this is the Domain Core bounded context's `jitter-scenario` crate (docs/architecture.md §5, row 1); its planned fixture is `fleet-retry-storm-22`.
+
+## Language
+
+Scenario, Tenant, Demand Weight, Capacity Window, Outage/Failure Window, Horizon, Seed, Event Ceiling, `ValidatedScenario`. These are the only terms this context introduces; it reuses Request, Attempt, Failure Class, and RAF from docs/ddd/01-ubiquitous-language.md rather than redefining them.
 
 ## Ownership and interfaces
 
-The owning crate is linked from the traceability table. Application ports specify required behavior, while AWS, RuVector, RVF, CLI, and evaluator code remain adapters. No adapter type leaks into `jitter-domain`.
+The owning crate is linked from the traceability table. Application ports specify required behavior, while AWS, RuVector, RVF, CLI, and evaluator code remain adapters. No adapter type leaks into any Domain Core crate (`jitter-scenario`, `jitter-workload`, `jitter-policy`, `jitter-budget`, `jitter-scheduler`, `jitter-outcome`).
 
 ## Invariants
 
