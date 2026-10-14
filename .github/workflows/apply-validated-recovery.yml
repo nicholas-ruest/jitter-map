@@ -23,6 +23,7 @@ jobs:
           printf '%s  %s\n' '63b523011660e2b039419b45b486907fdd2e99122cef6fb343ffb95399969198' '/tmp/jitter-map.patch.gz.b64' | sha256sum --check
           base64 --decode /tmp/jitter-map.patch.gz.b64 | gzip --decompress > /tmp/jitter-map.patch
           git apply --index --binary /tmp/jitter-map.patch
+          git restore --source=3db7fd2c7023e39ca81cd2ecad46c55e72d0cf70 --staged --worktree .github/workflows/ci.yml
           rm -rf .factory-transfer .github/workflows/apply-validated-recovery.yml
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
