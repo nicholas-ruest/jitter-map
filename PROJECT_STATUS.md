@@ -1,107 +1,48 @@
 # Project status
 
-- **BUILD: NONCOMPLIANT_BUILD / IN_PROGRESS.** Per ADR-0027 and
-  docs/implementation-contract.md, all 22 planned crates now satisfy the exact
-  crate-counting rule simultaneously under local, independently reproducible
-  invocation in this worktree: each is a workspace member, contains substantive logic
-  matching its docs/architecture.md §5 row, has at least one real caller or is itself a
-  real binary, has its own passing test suite (plus the shared `jitter-contract-tests`
-  suite for every adapter), and is exercised directly or transitively by an
-  end-to-end run of `fleet-retry-storm-22` (`fixtures/fleet-retry-storm-22.json`). This
-  status is retained rather than upgraded, because none of this work has gone through
-  CI, a PR, a merge, or publication yet — the worktree is uncommitted — and because
-  `jitter-adapter-ruflo` still has no live Ruflo network transport behind its real
-  signal primitive (see Known gaps below).
-- **Current implementation (this worktree, uncommitted):** `cargo metadata` reports
-  exactly 22 workspace packages — `jitter-scenario`, `jitter-workload`,
-  `jitter-policy`, `jitter-budget`, `jitter-scheduler`, `jitter-outcome`,
-  `jitter-simulation`, `jitter-recovery`, `jitter-ports`, `jitter-application`,
-  `jitter-evidence`, `jitter-adapter-aws`, `jitter-adapter-ruvector`,
-  `jitter-adapter-rvf`, `jitter-adapter-ruflo`, `jitter-adapter-metaharness`,
-  `jitter-config`, `jitter-observability`, `jitter-service`, `jitter-cli`,
-  `jitter-evaluation`, `jitter-contract-tests`. The base six-package implementation
-  (`jitter-domain`, the old `jitter-application`/`jitter-adapter-aws`'s prior
-  contract, `jitter-adapter-ruvnet`, the root `jitter-map` binary) was deleted as its
-  replacement landed in each case, per docs/architecture.md §6's no-parallel-code
-  rule — not left in place alongside the new crates.
-- **Base SHA this migration started from:** `3db7fd2c7023e39ca81cd2ecad46c55e72d0cf70`
-  (6 packages). **Design SHAs this migration implements:** `a818511` (start),
-  `0eaa592` (canonical 22-crate system map, ADR-0027), `1afe4fc` (migration contract).
-- **Gate 1 (structural), docs/architecture.md §8:** `python3
-  scripts/check_dependency_direction.py` — a real, runnable `cargo metadata`-based
-  checker, not a conceptual description — reports `GATE 1 PASSED: 22 workspace
-  crates, dependency direction is clean.` It verifies no Domain Core/Orchestration
-  crate depends on `jitter-ports`/any adapter/`jitter-config`/`jitter-observability`;
-  no adapter appears in `jitter-application`'s or any domain crate's transitive
-  graph; `jitter-contract-tests` appears only under `[dev-dependencies]`
-  workspace-wide; and no dependency cycle exists among the 22 crates' normal edges.
-- **Gate 2 (semantic), per docs/architecture.md §5:** `cargo test --workspace` passes
-  with zero failures across every crate. Highlights: `jitter-simulation`'s
-  `matches_base_monolith_golden_values_across_every_strategy` freezes a side-by-side
-  verification against the deleted `jitter-domain` monolith across all six admission
-  strategies (attempts/successes/terminal/denied/deferred all matched exactly, plus
-  per-tenant vectors and `completed_at`, verified before deletion); `jitter-recovery`'s
-  `interrupted_replay_matches_uninterrupted_digest_at_tick_six` and
-  `interruption_deep_inside_outage_window_still_replays_identically` (tick 9) both
-  reach the exact same `SimulationRun` as an uninterrupted run on a
-  `fleet-retry-storm-22`-shaped scenario; `jitter-evaluation`'s
-  `weighted_tenant_fair_outranks_unweighted_baseline_with_committed_delta` locks in a
-  specific, independently re-derived fitness delta.
-- **End-to-end verification against the real fixture
-  (`fixtures/fleet-retry-storm-22.json`: 500 tenants, 3 at weight 20 / 497 at weight
-  1, 12-tick outage, capacity 64/tick, horizon 400):** two automated `jitter-cli`
-  integration tests spawn the real compiled binary as a subprocess —
-  `fleet_retry_storm_22_weighted_matches_committed_golden_output`
-  (`crates/jitter-cli/tests/golden_cli.rs`) asserts stdout matches a committed golden
-  JSON byte-for-byte, and `interrupted_and_replayed_run_matches_uninterrupted_receipt`
-  (`crates/jitter-cli/tests/recovery_cli.rs`) runs a plain baseline, an
-  `--interrupt-after 6` capture, and a `--replay`, asserting the replayed receipt's
-  stdout is identical to the uninterrupted baseline's. `jitter-service`'s `/run` and
-  `/evaluate` endpoints are covered by black-box integration tests over a real
-  `TcpListener`. Tracing output was moved to stderr (ADR-0118) specifically so these
-  stdout comparisons stay clean.
-- **Quality gates, this worktree:** `cargo build --workspace`, `cargo test
-  --workspace` (0 failures across 49 test binaries), `cargo clippy --workspace
-  --all-targets` (zero warnings), `cargo fmt --all -- --check` (clean), `cargo deny
-  check` (advisories/bans/licenses/sources all `ok`) all pass as of this status.
-- IMPLEMENTED (carried forward unchanged from base `3db7fd2`, now inside
-  `jitter-scheduler`/`jitter-outcome`): opt-in `WeightedTenantFairBudget` plus the
-  existing equal-share ablation, weighted workload validation, typed per-tenant
-  outcomes, and Jain service fairness — reproduced bit-for-bit (see Gate 2 above).
-- Documentation inventory: **49 ADRs** (0001–0027 plus 0101–0122) plus
-  docs/adrs/index.md and docs/adrs/README.md; **12 DDD documents** plus
-  docs/ddd/index.md and docs/ddd/README.md; one new structural-checker script
-  (`scripts/check_dependency_direction.py`); one new committed fixture
-  (`fixtures/fleet-retry-storm-22.json`).
-- README: official versioned top-row marks (Rust, AWS SDK for Rust, RuVector/RVF,
-  MetaHarness) and **2 project-specific animated SVGs** — `docs/assets/overview-hero.svg`
-  and `docs/assets/execution-flow.svg` — remain present and unchanged.
-- Authority: none. No evaluator or memory component may promote a policy — enforced
-  at the type level (`jitter-evidence::Receipt.authority`,
-  `jitter-evaluation::Fitness.authority` are both hardcoded `"none"`, with no mutator).
-- **Known, honestly-carried gaps** (see docs/integration-matrix.md and each adapter's
-  own ADR for detail): `jitter-adapter-ruflo` implements a real, thread-safe
-  `HarnessSink` but has no live Ruflo network transport behind it, because none
-  exists to integrate against; `jitter-adapter-metaharness` writes a real append-only
-  evidence feed but has no live round-trip with an actual Darwin/Flywheel process
-  reading it, for the same reason; `jitter-adapter-ruvector`'s nearest-outcome
-  embedding is narrower (4 dimensions vs. the base monolith's 8) because
-  `MemorySink::record` takes the narrower `ReceiptRef` DTO, not a full
-  `SimulationReport`, by the ADR-0109 dependency-direction decision.
+## PARTIAL_FAILURE / INTEGRATION_BLOCKED
 
-Frozen skewed workload (`8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7`),
-measured on the base implementation this migration reproduces bit-for-bit (not a
-re-roll on the new crates):
+JitterMap is now a substantive, published 22-crate Rust system. The independently validated RuOS tree was reproduced exactly on GitHub, passed CI, and merged through PR #11. The dated research and build Gists were published and read back as public artifacts owned by `nicholas-ruest`.
 
-| Candidate | RAF | Successes | p95 | Denied | Jain fairness |
-|---|---:|---:|---:|---:|---:|
-| Adaptive drop | 3.7017 | 72 | 16 | 527 | 0.1250 |
-| Equal-share tenant fair | 3.7100 | 63 | 15 | 536 | 0.8932 |
-| Demand-weighted tenant fair | 3.7100 | 65 | 16 | 534 | 0.9684 |
+It is not marked `BUILT` because two declared optional adapter boundaries remain incomplete: the Ruflo adapter has no demonstrated live remote transport, and the MetaHarness adapter has no demonstrated external Darwin/Flywheel process round-trip. The mandatory executed composition is nevertheless present through AWS Smithy, RuVector and RVF.
 
-Decision: **REVISE**. Demand weighting materially improves service fairness and recovers
-two successes versus equal-share admission, but it still does not preserve the
-adaptive-drop success baseline. It is not promoted. This conclusion is unchanged by the
-migration — `jitter-evaluation`'s regression test now locks in the equivalent
-comparison (`WeightedTenantFairBudget` vs. `TenantFairBudget` on `fairness_scenario`)
-against the new 22-crate implementation.
+## Immutable delivery
+
+- Merged main: `1c42e7adbaa99988598592e91b0c2f2489087f42`
+- Git tree: `5dcfef7348cf03631cc59f1df070712fe1c24923`
+- Pull request: https://github.com/nicholas-ruest/jitter-map/pull/11
+- Exact candidate: `bf6a9aa8b56af39bbfa2d14d6df3aa4cc7fb578d`
+- CI run: https://github.com/nicholas-ruest/jitter-map/actions/runs/38497481659
+- Research Gist: https://gist.github.com/nicholas-ruest/9806bb7dcbcb5c86b43005ff31b5a07f
+- Build Gist: https://gist.github.com/nicholas-ruest/92ae66b6aa97644d35771fa40e711dc4
+
+## Observed inventory
+
+- 22 implemented Rust workspace packages
+- 4,595 Rust source lines
+- 49 ADRs plus indexes
+- 12 DDD documents plus indexes
+- 2 project-specific animated SVGs
+- 107 locked workspace tests passed locally
+- GitHub CI passed dependency policy, formatting, strict Clippy, locked tests, dependency direction and two benchmarks
+
+## Executed composition
+
+- AWS Smithy retry configuration translation
+- RuVector 2.3.1 VectorDB insert/search/get
+- RVF Crypto 0.2.0 witness seal/verify and tamper rejection
+- Adaptive deferral and demand-weighted fairness ablations
+- Darwin 0.10.3 suite/hash verification
+- Flywheel 0.1.12 bounded generation and replay verification
+- Ruflo Federation provenance probe
+
+## Guidance compliance
+
+- REPOSITORY_GUIDANCE_APPLIED at core-memory `f57cc3deebe89f2ec0fa2369e05ddf76a56db965`
+- LIVE_MEMORY_EMPTY_UNSCREENED: the live task-start and risk calls returned no records with `unscreened=true`; no live preference retrieval was claimed
+- APPLIED: design-first documentation, typed boundaries, one-writer worktree, append-only evidence, exact commit binding, advisory evaluators, PR/CI merge discipline
+- DEVIATED: live Ruflo and MetaHarness adapter round-trips remain incomplete and are explicitly reported
+
+## Decision
+
+**REVISE.** Continue this project by implementing and executing the two live adapter transports. Do not create another primitive repository.
