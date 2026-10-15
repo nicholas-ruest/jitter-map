@@ -68,7 +68,7 @@ See docs/architecture.md for the full dependency-direction diagram and
 
 ## Architecture and evidence
 
-The [specification](docs/specification.md), [architecture](docs/architecture.md), [49 ADRs](docs/adrs/index.md) (27 design, 0001–0027, plus 22 implementation, 0101–0122), [12 DDD documents](docs/ddd/index.md), [frozen contract](docs/implementation-contract.md), [research](docs/research.md), and [traceability](docs/traceability.md) define the build. CI results and benchmark receipts are recorded under evidence.
+The [specification](docs/specification.md), [architecture](docs/architecture.md), [50 ADRs](docs/adrs/index.md) (27 design, 0001–0027, plus 23 implementation, 0101–0123), [12 DDD documents](docs/ddd/index.md), [frozen contract](docs/implementation-contract.md), [research](docs/research.md), and [traceability](docs/traceability.md) define the build. CI results and benchmark receipts are recorded under evidence.
 
 ## Frozen benchmark
 

@@ -68,7 +68,7 @@
   `jitter-scheduler`/`jitter-outcome`): opt-in `WeightedTenantFairBudget` plus the
   existing equal-share ablation, weighted workload validation, typed per-tenant
   outcomes, and Jain service fairness — reproduced bit-for-bit (see Gate 2 above).
-- Documentation inventory: **49 ADRs** (0001–0027 plus 0101–0122) plus
+- Documentation inventory: **50 ADRs** (0001–0027 plus 0101–0123) plus
   docs/adrs/index.md and docs/adrs/README.md; **12 DDD documents** plus
   docs/ddd/index.md and docs/ddd/README.md; one new structural-checker script
   (`scripts/check_dependency_direction.py`); one new committed fixture
