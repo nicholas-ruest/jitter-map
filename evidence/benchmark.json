@@ -8,7 +8,7 @@
     "denied": 0,
     "deferred": 0,
     "tenant_success_fairness": 0.9854813756991552,
-    "scenario_sha256": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
+    "scenario_digest": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
     "authority": "none"
   },
   {
@@ -20,7 +20,7 @@
     "denied": 0,
     "deferred": 0,
     "tenant_success_fairness": null,
-    "scenario_sha256": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
+    "scenario_digest": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
     "authority": "none"
   },
   {
@@ -32,7 +32,7 @@
     "denied": 38,
     "deferred": 0,
     "tenant_success_fairness": 0.9365144100054377,
-    "scenario_sha256": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
+    "scenario_digest": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
     "authority": "none"
   },
   {
@@ -44,7 +44,7 @@
     "denied": 0,
     "deferred": 55,
     "tenant_success_fairness": 0.9270383693045563,
-    "scenario_sha256": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
+    "scenario_digest": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
     "authority": "none"
   },
   {
@@ -56,7 +56,7 @@
     "denied": 38,
     "deferred": 0,
     "tenant_success_fairness": 0.9980198019801979,
-    "scenario_sha256": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
+    "scenario_digest": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
     "authority": "none"
   },
   {
@@ -68,7 +68,7 @@
     "denied": 38,
     "deferred": 0,
     "tenant_success_fairness": 0.9980198019801979,
-    "scenario_sha256": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
+    "scenario_digest": "bad5f95828899a03ce5858b97e1ddcffaecae89a79b824cbc0acf9cc469b3c9b",
     "authority": "none"
   }
 ]

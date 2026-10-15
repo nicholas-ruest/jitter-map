@@ -18,7 +18,7 @@ Fleet-level retry admission with replayable evidence. JitterMap answers a system
 - aggregate and per-tenant RAF, success, denial, deferral, p95, and Jain fairness evidence;
 - real RuVector outcome insert/search/read-back;
 - real RVF witness-chain sealing;
-- real typed Ruflo and MetaHarness port implementations with tested local primitives and an append-only evidence feed, including bounded MetaHarness Darwin/Flywheel evaluation with authority none; their live external transport/process round trips remain partial and unproven.
+- bounded Rust process boundaries for Ruflo registry discovery plus real Darwin numeric evolution and Flywheel replay verification, with append-only receipts and authority none. Ruflo reruns require an initialized project-local policy anchor.
 
 ## Quickstart
 
@@ -33,7 +33,7 @@ Fleet-level retry admission with replayable evidence. JitterMap answers a system
 
 `--policy` accepts `local`, `aws`, `adaptive`, `adaptive-deferral`, `tenant-fair-budget`, or `weighted-tenant-fair-budget`. Equal-share fairness admits one event per non-empty tenant per round; demand-weighted fairness admits each tenant's validated scenario weight per round. Both rotate the starting tenant by tick and preserve shared-budget drop semantics; see [ADR-0021](docs/adrs/0021-tenant-fairness.md). The JSON receipt includes the exact scenario digest, typed aggregate/per-tenant report, nearest prior outcome IDs, witness root, and authority none.
 
-MetaHarness evaluation uses `jitter-candidate`, which exposes the same compiled domain engine for numeric evaluation. The current Darwin receipt was an availability-only suite using `npm test`, not an executed genome evaluation. The current Flywheel receipt separately executed the actual `jitter-benchmark` and `jitter-fairness-benchmark` binaries, seals lineage, replays the frozen gate, and made one internal advisory selection and zero repository-level promotions; it is advisory only.
+MetaHarness evaluation uses `jitter-candidate`, which exposes the same compiled domain engine for numeric evaluation. The current Rust-driven receipt runs Darwin 0.10.3 `evolve-numeric` with the frozen genome and candidate evaluator, then executes Flywheel 0.1.12 generation and replay verification. Both remain advisory and have no repository promotion authority.
 
 ## Execution and data flow
 
@@ -49,7 +49,7 @@ docs/architecture.md §2:
 | jitter-scenario, jitter-workload, jitter-policy, jitter-budget, jitter-scheduler, jitter-outcome | Domain Core: pure, deterministic scenario/policy/budget/scheduling/outcome model |
 | jitter-simulation, jitter-recovery | Domain Orchestration: the tick-loop kernel and checkpoint/replay |
 | jitter-ports, jitter-application | Hexagonal Boundary: 5 port traits and the use case orchestrating them |
-| jitter-adapter-aws, jitter-adapter-ruvector, jitter-adapter-rvf, jitter-adapter-ruflo, jitter-adapter-metaharness | Infrastructure Adapters: real executed AWS/RuVector/RVF boundaries, plus real typed Ruflo/MetaHarness port implementations whose live external transport/process round trips remain partial |
+| jitter-adapter-aws, jitter-adapter-ruvector, jitter-adapter-rvf, jitter-adapter-ruflo, jitter-adapter-metaharness | Infrastructure Adapters: executed AWS/RuVector/RVF boundaries plus bounded Ruflo, Darwin, and Flywheel process runners with fail-closed receipts |
 | jitter-evidence, jitter-config, jitter-observability | Cross-Cutting Support: receipt binding, typed config, tracing |
 | jitter-service, jitter-cli | Composition Roots: the HTTP service and the `jitter-map` CLI binary |
 | jitter-evaluation, jitter-contract-tests | Fitness Evaluation and Contract Verification |
@@ -64,7 +64,7 @@ See docs/architecture.md for the full dependency-direction diagram and
 | AWS SDK for Rust | constructs/translates aws_smithy_types retry config | 193882fe11fce9b22424ac913eeb4d03963d5700 |
 | RuVector | VectorDB insert/search/get outcome memory | source 5a93328f, crate 2.3.1 |
 | RVF | witness creation and verification | rvf-crypto 0.2.0 |
-| MetaHarness | `jitter-candidate` exposes the compiled engine for numeric evaluation; the Darwin receipt is an availability-only `npm test` suite, and the Flywheel receipt separately executes the real `jitter-benchmark`/`jitter-fairness-benchmark` binaries and is advisory only | source 9ce8b8d, packages 0.10.3/0.1.12 |
+| MetaHarness | Rust launches Darwin `evolve-numeric` against the frozen genome and real `jitter-candidate`; the repository bridge then executes Flywheel generations and verifies the replay bundle. Both are advisory only | source 9ce8b8d, packages 0.10.3/0.1.12 |
 
 ## Architecture and evidence
 
@@ -92,4 +92,4 @@ A second frozen fixture assigns demand weights `[8,1,1,1,1,1,1,1]`. Equal-share 
 
 ## Maturity and limitations
 
-This is a pre-1.0 evaluation system, not an SDK interceptor, deployment controller, or claim of production superiority. Neither tenant-fair candidate preserves the adaptive-drop success baseline on the skewed fixture. The discrete-event model does not reproduce every network, SDK, or scheduler behavior. RuVector local file storage is evaluation-only; production persistence must remain behind authorized RuVector/Cloud SQL infrastructure. MetaHarness can propose and score policy candidates but cannot promote them. No component may self-promote a policy. The Ruflo adapter's live network transport and the MetaHarness adapter's live external process round trip are both partial and unproven in this environment; only their local port contracts and the append-only evidence feed are tested.
+This is a pre-1.0 evaluation system, not an SDK interceptor, deployment controller, or claim of production superiority. Neither tenant-fair candidate preserves the adaptive-drop success baseline on the skewed fixture. The discrete-event model does not reproduce every network, SDK, or scheduler behavior. RuVector local file storage is evaluation-only; production persistence must remain behind authorized RuVector/Cloud SQL infrastructure. MetaHarness can propose and score policy candidates but cannot promote them. No component may self-promote a policy. The MetaHarness Rust process round-trip is proven locally against installed Darwin/Flywheel artifacts. Ruflo registry discovery succeeded once through the Rust runner, but a later rerun failed closed after generated policy anchors were removed; fresh execution requires Ruflo's interactive policy initialization and no interactive guard was bypassed.

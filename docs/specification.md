@@ -113,3 +113,18 @@ Every row above is an already-exercised ablation path in the current base (ADR-0
 ADR-0021) or a direct consequence of the hexagonal boundary the planned 22-crate map
 enforces (docs/architecture.md §3) — none require new code to reason about; they
 describe behavior the architecture already guarantees by construction.
+
+## Live integration acceptance criteria
+
+For the existing `fleet-retry-storm-22` workload, the system must preserve the exact
+domain outcome digest while adding two independently inspectable receipts:
+
+1. Ruflo: the pinned CLI process completes the allowlisted provenance operation within
+   the configured timeout and returns schema-valid identity/status data.
+2. MetaHarness: Darwin verifies the frozen suite and Flywheel consumes the exact
+   adapter JSONL record, runs one bounded generation, and verifies replay.
+3. Removing Ruflo removes only orchestration provenance; removing MetaHarness removes
+   only advisory evaluation evidence. Neither ablation changes simulation results.
+4. Every failure path is observable as a typed error and leaves no success receipt.
+5. Output is deterministic after volatile timestamps and durations are excluded from
+   digest comparison; evaluator authority remains `none`.

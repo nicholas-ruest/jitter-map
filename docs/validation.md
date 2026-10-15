@@ -119,3 +119,23 @@ requires a party other than this migration's own authoring agent:
   warns against for *policy* promotion, and the same caution applies here: treat this
   migration's own "all gates pass" claim as a strong, mechanically-reproducible
   starting point for an independent reviewer, not as a substitute for one.
+
+## ADR-0123 validation plan
+
+The process adapters add a third gate after structure and local semantics:
+
+1. Direct child-process fixtures validate working directory, timeout/kill,
+   non-zero exit, malformed JSON, 64-KiB output cap, and receipt failures.
+2. RuOS executes the installed pinned Ruflo CLI through the Rust adapter and reads
+   back the schema-valid append-only receipt.
+3. RuOS executes Darwin 0.10.3 suite verification and a Flywheel 0.1.12 bounded
+   generation/replay through the Rust adapter and repository bridge.
+4. Combined, Ruflo-disabled, and MetaHarness-disabled runs use the same frozen input
+   and seed; their simulation digests must match while evidence availability differs.
+5. `cargo fmt --all -- --check`, strict locked workspace Clippy, locked tests,
+   dependency direction, `cargo deny check`, both benchmarks, and the pinned project
+   structural checker must all pass against the exact candidate commit.
+
+A ChatGPT MCP identity read, a CLI `--help`, a direct Node import, or a local contract
+test is availability evidence only. None closes the adapter gate unless the Rust
+process runner itself performs and validates the round-trip.

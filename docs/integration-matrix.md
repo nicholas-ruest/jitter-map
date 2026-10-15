@@ -35,3 +35,15 @@ deleted and superseded; docs/validation.md's checker semantics still apply.
   as "integrated," "wired," or "adapter-complete" in the sense of a working live
   connection — only as "the port contract is honestly implemented and proven with a
   realistic simulated signal."
+
+## ADR-0123 implementation target
+
+| Ingredient | Exact runtime pin | Executed boundary | Required test | Ablation |
+|---|---|---|---|---|
+| Ruflo | `@claude-flow/cli` 3.56.10; MIT; npm integrity `sha512-jcl7i1gwnb1vQRlGwmXU/FkBulxf3nKhYPC6cZiDPn0fptw6OJgSSsgAQf229axUcqsmrA3pd3V+ma0vO7Xv+A==` | Rust `Command` to a fixed CLI provenance operation; ChatGPT MCP identity is independent corroboration | installed CLI round-trip plus missing/timeout/non-zero/schema/output-cap fixtures | domain replay without process provenance |
+| Darwin | 0.10.3; inspected source `9ce8b8dd89045c3b9a1f809ae58f3589029db4a4`; MIT | Rust launches Node and pinned CLI `evolve-numeric` with frozen genome, seed, bounds, and real `jitter-candidate` evaluator | real numeric generation plus all process failure fixtures | local Rust scoring only |
+| Flywheel | 0.1.12; same inspected source pin; MIT | repository ESM bridge imports installed module, consumes exact JSONL, runs one bounded generation, verifies replay bundle | real feed-to-generation-to-verify round-trip | append-only feed without external consumer |
+
+The npm packages do not expose `gitHead`; receipts must report the registry versions
+and the separately inspected source pin without claiming they are cryptographically
+identical.

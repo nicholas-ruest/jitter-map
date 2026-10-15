@@ -298,3 +298,21 @@ the interrupted-vs-uninterrupted digest match in §7, and the evaluation ranking
 21. A crate is compliant only when **both** gates pass. A migration PR that passes Gate
 1 but has not yet run or has failing Gate 2 tests must be described as structurally
 staged, not as complete, and must not be merged as a finished migration step.
+
+## 9. Live process edge
+
+ADR-0123 closes the two external-process gaps without adding crates. The existing
+adapter crates gain typed process runners while the six domain crates remain pure.
+
+| Adapter | Process boundary | Typed result | Failure behavior |
+|---|---|---|---|
+| `jitter-adapter-ruflo` | `JITTER_RUFLO_BIN` plus fixed provenance argv | `RufloRegistryReceipt` | Fail closed on discovery, timeout, exit, schema, size, or receipt error |
+| `jitter-adapter-metaharness` | `JITTER_NODE_BIN` invoking `JITTER_DARWIN_CLI` and repository Flywheel bridge | `MetaharnessReceipt` with nested `DarwinReceipt` | Fail closed on discovery, timeout, exit, schema, size, replay, or receipt error |
+
+Neither runner invokes a shell. Executable and module paths are canonicalized before
+spawn; argv is assembled from typed values; stdout and stderr are bounded to 64 KiB;
+the child is killed on timeout. A successful receipt is append-only and records
+output/argv fingerprints, tool version, elapsed time, exit status, and authority
+`none`; Darwin additionally binds the genome input digest.
+The ChatGPT MCP call to `wss://relay.ruv.io` is retained as independent provenance
+evidence and never counted as the Rust adapter round-trip.
