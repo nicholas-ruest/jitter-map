@@ -26,3 +26,22 @@ The context emits explicit accepted, rejected, completed, cancelled, timed-out, 
 ## Failure and validation
 
 Unit tests exercise local invariants; application contract tests exercise ports; integration tests call real upstream APIs; the end-to-end CLI covers valid, invalid, timeout, and persistence paths.
+
+## Live process aggregate
+
+`ProcessEvaluation` is the aggregate root. `ProcessInvocation` is an entity identified
+by an input digest. `ExecutablePath`, `ArgvFingerprint`, `OutputDigest`, `Timeout`, and
+`Authority` are immutable value objects. The aggregate accepts a completion only when
+the executable was canonicalized, the fixed command exited zero within the timeout,
+output stayed within the cap, the typed schema validated, and the append-only receipt
+was durably written.
+
+The Ruflo and MetaHarness adapters own their process anti-corruption layers. Domain and
+application crates see only `RufloProvenance`, `EvaluationReplay`, and `PortError`.
+Events are `ProcessStarted`, `ProcessCompleted`, `ProcessTimedOut`, `ProcessRejected`,
+and `ReceiptAppended`; events never grant promotion authority.
+
+Failure is fail-closed at the evidence boundary: a failed external process cannot
+produce a success receipt or promote a candidate. The simulation remains available in
+the documented ablations, preserving degraded-mode operation without pretending the
+missing evidence exists.

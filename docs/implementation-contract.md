@@ -121,3 +121,25 @@ A phase that ships Gate-1-passing, Gate-2-pending code must be reported as "stru
 staged," never as "complete" or "migrated" (docs/architecture.md §8; ADR-0027
 Consequences). No empty skeletons: a crate's first commit must contain the real behavior
 from its docs/architecture.md §5 row, not a placeholder to be filled in later.
+
+## Live process implementation contract
+
+The next increment modifies only the existing Ruflo and MetaHarness adapters plus their
+callers, tests, bridge script, documentation, and receipts. It must not add a crate.
+
+- `RufloProcessTransport` and `MetaharnessProcessConfig` carry canonical paths,
+  immutable argv, working directory, timeout, 64-KiB output cap, and receipt path.
+- `RufloProcessTransport::probe_registry()` and
+  `MetaharnessProcessRunner::evaluate()` return typed receipts; raw
+  JSON never crosses into domain crates.
+- Processes are spawned with `std::process::Command`, never `sh -c`; inputs are
+  serialized to files or individual argv values, never interpolated command text.
+- Timeout, missing executable/module, non-zero exit, malformed schema, oversized
+  output, replay verification failure, and receipt I/O failure are required tests.
+- Real integration tests are opt-in through explicit environment variables and must
+  run on RuOS against exact installed artifacts. Fixture-process tests run in locked CI.
+- Receipts are append-only JSON Lines with tool/version, argv/output fingerprints,
+  duration, exit status, and authority `none`; Darwin adds its genome input digest.
+  Environment values remain redacted.
+- The unchanged local adapters are executable ablations. Live process removal may
+  remove provenance or advisory evidence only; it must not change domain results.

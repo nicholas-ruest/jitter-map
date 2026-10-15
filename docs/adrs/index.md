@@ -53,3 +53,4 @@ and executable validation.
 - [ADR-0120: Composition root — CLI](./0120-composition-root-cli.md)
 - [ADR-0121: Evaluation boundary](./0121-evaluation-boundary.md)
 - [ADR-0122: Shared contract test suite](./0122-shared-contract-test-suite.md)
+- [ADR-0123: Live process integration boundaries](./0123-live-process-integration-boundaries.md)

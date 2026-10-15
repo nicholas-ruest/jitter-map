@@ -8,7 +8,7 @@
     "denied": 527,
     "deferred": 0,
     "tenant_success_fairness": 0.125,
-    "scenario_sha256": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
+    "scenario_digest": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
     "authority": "none"
   },
   {
@@ -20,7 +20,7 @@
     "denied": 0,
     "deferred": 1315,
     "tenant_success_fairness": 0.125,
-    "scenario_sha256": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
+    "scenario_digest": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
     "authority": "none"
   },
   {
@@ -32,7 +32,7 @@
     "denied": 536,
     "deferred": 0,
     "tenant_success_fairness": 0.8931963478708163,
-    "scenario_sha256": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
+    "scenario_digest": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
     "authority": "none"
   },
   {
@@ -44,7 +44,7 @@
     "denied": 534,
     "deferred": 0,
     "tenant_success_fairness": 0.9683981576253836,
-    "scenario_sha256": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
+    "scenario_digest": "8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7",
     "authority": "none"
   }
 ]

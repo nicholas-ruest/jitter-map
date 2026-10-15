@@ -61,3 +61,9 @@ Every row above is implemented and passes both gates in docs/architecture.md §8
 (`crates/jitter-cli/tests/recovery_cli.rs`), which runs the real binary three times
 (uninterrupted, `--interrupt-after 6`, `--replay`) and asserts the uninterrupted and
 replayed stdout are identical.
+
+| Live acceptance criterion | Context | Crate | Decision | Evidence |
+|---|---|---|---|---|
+| Ruflo process round-trip produces bounded schema-valid provenance receipt | Infrastructure Adapters | `jitter-adapter-ruflo` | ADR-0123 | real RuOS integration test plus process failure fixtures |
+| Darwin verifies frozen suite and Flywheel consumes one adapter record with verified replay | Infrastructure Adapters + Fitness Evaluation | `jitter-adapter-metaharness`, `jitter-evaluation` | ADR-0123; ADR-0023 | installed-package integration test and append-only receipt |
+| Removing each process preserves the simulation digest while removing only its evidence | Domain Orchestration | `jitter-application`, both adapter crates | ADR-0123 | three-way combined/Ruflo-disabled/MetaHarness-disabled ablation |
