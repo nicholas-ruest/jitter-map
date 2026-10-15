@@ -60,3 +60,14 @@ The default suite exercises unavailable executables, timeouts, non-zero exits, m
 - A later repeat after deleting Ruflo's generated policy-anchor files failed closed with `policy-anchor-log-missing`. Ruflo policy initialization requires an interactive local terminal, so the initial successful Rust round-trip is retained as evidence while fresh reruns require that project-local policy prerequisite to be re-established. No interactive guard was bypassed.
 - The Flywheel boundary proves real external generation/replay execution with a frozen local evaluator and zero promotions. It does not grant promotion, deployment, or publication authority.
 - npm did not expose `gitHead` for the installed Flywheel artifact; registry version and entry hash are therefore recorded separately from the previously inspected source revision.
+
+
+## Published source binding
+
+- Candidate commit: `ce9801035f55c896d5f24085111d76c671c0702b`
+- Candidate Git tree: `ecec760816ce1ceb57f9c31f0a603850dbc234b0`
+- Pull request: https://github.com/nicholas-ruest/jitter-map/pull/13
+- CI run: https://github.com/nicholas-ruest/jitter-map/actions/runs/38670647268 — success
+- Squash-merged implementation commit: `a423a8115759162e64c88746ed8f1dfd62bb0da0`
+
+The candidate and merged implementation commits have the same Git tree, so the local and CI evidence above is bound to the published implementation bytes.
