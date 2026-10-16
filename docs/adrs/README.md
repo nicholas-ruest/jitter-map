@@ -3,13 +3,14 @@
 51 accepted decisions. 26 (ADR-0001–ADR-0026) freeze the bounded MVP that originally
 shipped in the base six-package workspace (`3db7fd2`). ADR-0027 planned the 22-crate
 migration described in docs/architecture.md. ADR-0101–ADR-0122 are the 22 decisions
-that actually implement that plan, one per planned crate — each one record the real
+that implement that plan, one per planned crate. ADR-0123 and ADR-0124 define the
+bounded live-process and read-only federation-sync increments. Each decision records the real
 extraction/composition decision made while building it, including every documented
 deviation from the planning table's exact signatures (dependency-direction
 constraints took priority over literal signature matches in a handful of cases; each
 deviation is recorded in both the relevant ADR and the crate's own doc comment). See
 docs/adrs/index.md for the plain link list; this file adds a one-line summary of what
-each decision actually settles, so a reader does not have to open all 49 to find the
+each decision actually settles, so a reader does not have to open all 51 to find the
 relevant one.
 
 | ADR | Settles |

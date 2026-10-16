@@ -1,17 +1,15 @@
 # Project status
 
-- **BUILD: PARTIAL_FAILURE / INTEGRATION_BLOCKED.** The published 22-crate
-  system satisfies the structural and semantic gates. ADR-0123's current increment
-  adds bounded live Ruflo, Darwin, and Flywheel process runners. All 22 crates satisfy the exact
-  crate-counting rule simultaneously under local, independently reproducible
-  invocation in this worktree: each is a workspace member, contains substantive logic
-  matching its docs/architecture.md §5 row, has at least one real caller or is itself a
-  real binary, has its own passing test suite (plus the shared `jitter-contract-tests`
-  suite for every adapter), and is exercised directly or transitively by an
-  end-to-end run of `fleet-retry-storm-22` (`fixtures/fleet-retry-storm-22.json`). This
-  the end-to-end workload. The current increment remains blocked from `BUILT` until
-  its PR/CI/merge/readback completes and Ruflo's project-local policy anchor is
-  re-established through the CLI's required interactive administration path.
+- **BUILD: BUILT.** The 22-crate composite system is published and validated. PR #15
+  added the bounded Ruflo 3.56.10 registry and read-only public federation-sync
+  process path; CI run 38838919923 passed the exact candidate tree
+  `4e9176af1b519739a672a20d96f929802122e8d4`, which was squash-merged as
+  `6a2fd3b15e6d2440733a4108f18e98586a94bfdb`. The pinned factory checker passed
+  with 51 ADRs, 12 DDDs, 22 implemented crates, and 2 animated SVGs. Independent
+  review verified real caller paths, executed AWS/RuVector/RVF/Ruflo/Darwin/Flywheel
+  boundaries, frozen benchmarks and ablations, failure paths, README assets, CI,
+  repository readback, and the owner-readback research/build Gists. Authority remains
+  `none`; no policy was promoted or deployed.
 - **Current implementation (published base plus current live-integration increment):** `cargo metadata` reports
   exactly 22 workspace packages — `jitter-scenario`, `jitter-workload`,
   `jitter-policy`, `jitter-budget`, `jitter-scheduler`, `jitter-outcome`,
@@ -68,7 +66,7 @@
   `jitter-scheduler`/`jitter-outcome`): opt-in `WeightedTenantFairBudget` plus the
   existing equal-share ablation, weighted workload validation, typed per-tenant
   outcomes, and Jain service fairness — reproduced bit-for-bit (see Gate 2 above).
-- Documentation inventory: **50 ADRs** (0001–0027 plus 0101–0123) plus
+- Documentation inventory: **51 ADRs** (0001–0027 plus 0101–0124) plus
   docs/adrs/index.md and docs/adrs/README.md; **12 DDD documents** plus
   docs/ddd/index.md and docs/ddd/README.md; one new structural-checker script
   (`scripts/check_dependency_direction.py`); one new committed fixture
@@ -79,16 +77,14 @@
 - Authority: none. No evaluator or memory component may promote a policy — enforced
   at the type level (`jitter-evidence::Receipt.authority`,
   `jitter-evaluation::Fitness.authority` are both hardcoded `"none"`, with no mutator).
-- **Known, honestly-carried gaps** (see docs/integration-matrix.md, ADR-0123, and the
-  2026-10-14 live-integration receipt): the Rust Ruflo runner completed one live
-  registry round-trip, then a repeat after generated policy state was removed failed
-  closed with `policy-anchor-log-missing`; restoring that anchor requires Ruflo's
-  interactive local administration path and was not bypassed. The MetaHarness runner
-  completed real Darwin numeric evolution and Flywheel replay verification with zero
-  repository promotions and authority `none`; `jitter-adapter-ruvector`'s nearest-outcome
-  embedding is narrower (4 dimensions vs. the base monolith's 8) because
-  `MemorySink::record` takes the narrower `ReceiptRef` DTO, not a full
-  `SimulationReport`, by the ADR-0109 dependency-direction decision.
+- **Known, honestly-carried limitations:** the Ruflo boundary is intentionally
+  read-only and does not join or publish to a relay, deliver remote interruption
+  authority, promote policies, or deploy services. Federation message bodies remain
+  opaque and are not persisted. MetaHarness npm packages still omit `gitHead`, so
+  registry versions and the inspected source pin remain separate provenance facts.
+  `jitter-adapter-ruvector` uses a narrower 4-dimension outcome embedding than the
+  historical monolith by ADR-0109. The skewed fairness candidates still trail the
+  adaptive-drop success baseline; no superiority claim follows.
 
 Frozen skewed workload (`8f5b79e0a345229171428559523a79a152b2f04a29d209e7ee68c40b40822bc7`),
 measured on the base implementation this migration reproduces bit-for-bit (not a
