@@ -1,6 +1,6 @@
 # Architecture decision records
 
-These 49 accepted decisions freeze the bounded MVP, its planned migration, and the
+These 51 accepted decisions freeze the bounded MVP, its planned migration, and the
 22-crate implementation that realizes it. Each records alternatives, consequences,
 and executable validation.
 
