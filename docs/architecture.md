@@ -306,7 +306,7 @@ adapter crates gain typed process runners while the six domain crates remain pur
 
 | Adapter | Process boundary | Typed result | Failure behavior |
 |---|---|---|---|
-| `jitter-adapter-ruflo` | `JITTER_RUFLO_BIN` plus fixed provenance argv | `RufloRegistryReceipt` | Fail closed on discovery, timeout, exit, schema, size, or receipt error |
+| `jitter-adapter-ruflo` | `JITTER_RUFLO_BIN` plus fixed registry and read-only federation-sync argv | `RufloRegistryReceipt`, `RufloSyncReceipt` | Fail closed on discovery, bounds, untrusted-envelope validation, timeout, exit, schema, size, or receipt error |
 | `jitter-adapter-metaharness` | `JITTER_NODE_BIN` invoking `JITTER_DARWIN_CLI` and repository Flywheel bridge | `MetaharnessReceipt` with nested `DarwinReceipt` | Fail closed on discovery, timeout, exit, schema, size, replay, or receipt error |
 
 Neither runner invokes a shell. Executable and module paths are canonicalized before
@@ -316,3 +316,7 @@ output/argv fingerprints, tool version, elapsed time, exit status, and authority
 `none`; Darwin additionally binds the genome input digest.
 The ChatGPT MCP call to `wss://relay.ruv.io` is retained as independent provenance
 evidence and never counted as the Rust adapter round-trip.
+
+ADR-0124 adds a live coordination read without joining or publishing. Third-party
+message bodies remain opaque data; only bounded type frequencies and response hashes
+enter the append-only receipt. The path has no interruption or membership authority.

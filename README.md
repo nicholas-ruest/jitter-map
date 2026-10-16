@@ -18,7 +18,7 @@ Fleet-level retry admission with replayable evidence. JitterMap answers a system
 - aggregate and per-tenant RAF, success, denial, deferral, p95, and Jain fairness evidence;
 - real RuVector outcome insert/search/read-back;
 - real RVF witness-chain sealing;
-- bounded Rust process boundaries for Ruflo registry discovery plus real Darwin numeric evolution and Flywheel replay verification, with append-only receipts and authority none. Ruflo reruns require an initialized project-local policy anchor.
+- bounded Rust process boundaries for Ruflo registry discovery and read-only signed federation sync plus real Darwin numeric evolution and Flywheel replay verification, with append-only receipts and authority none. Ruflo registry and read-only federation-sync reruns auto-create project-local policy anchors; membership and publication remain out of scope.
 
 ## Quickstart
 
@@ -68,7 +68,7 @@ See docs/architecture.md for the full dependency-direction diagram and
 
 ## Architecture and evidence
 
-The [specification](docs/specification.md), [architecture](docs/architecture.md), [50 ADRs](docs/adrs/index.md) (27 design, 0001–0027, plus 23 implementation, 0101–0123), [12 DDD documents](docs/ddd/index.md), [frozen contract](docs/implementation-contract.md), [research](docs/research.md), and [traceability](docs/traceability.md) define the build. CI results and benchmark receipts are recorded under evidence.
+The [specification](docs/specification.md), [architecture](docs/architecture.md), [51 ADRs](docs/adrs/index.md) (27 design, 0001–0027, plus 24 implementation, 0101–0124), [12 DDD documents](docs/ddd/index.md), [frozen contract](docs/implementation-contract.md), [research](docs/research.md), and [traceability](docs/traceability.md) define the build. CI results and benchmark receipts are recorded under evidence.
 
 ## Frozen benchmark
 
@@ -92,4 +92,4 @@ A second frozen fixture assigns demand weights `[8,1,1,1,1,1,1,1]`. Equal-share 
 
 ## Maturity and limitations
 
-This is a pre-1.0 evaluation system, not an SDK interceptor, deployment controller, or claim of production superiority. Neither tenant-fair candidate preserves the adaptive-drop success baseline on the skewed fixture. The discrete-event model does not reproduce every network, SDK, or scheduler behavior. RuVector local file storage is evaluation-only; production persistence must remain behind authorized RuVector/Cloud SQL infrastructure. MetaHarness can propose and score policy candidates but cannot promote them. No component may self-promote a policy. The MetaHarness Rust process round-trip is proven locally against installed Darwin/Flywheel artifacts. Ruflo registry discovery succeeded once through the Rust runner, but a later rerun failed closed after generated policy anchors were removed; fresh execution requires Ruflo's interactive policy initialization and no interactive guard was bypassed.
+This is a pre-1.0 evaluation system, not an SDK interceptor, deployment controller, or claim of production superiority. Neither tenant-fair candidate preserves the adaptive-drop success baseline on the skewed fixture. The discrete-event model does not reproduce every network, SDK, or scheduler behavior. RuVector local file storage is evaluation-only; production persistence must remain behind authorized RuVector/Cloud SQL infrastructure. MetaHarness can propose and score policy candidates but cannot promote them. No component may self-promote a policy. The MetaHarness Rust process round-trip is proven locally against installed Darwin/Flywheel artifacts. Ruflo registry discovery and read-only seven-day federation sync now pass through the bounded Rust runner in fresh clean checkouts. Sync receipts retain only provenance, counts, type frequencies, digests, timing, and authority none; untrusted message bodies are never stored or interpreted. Relay membership, joining, publication, and interruption authority remain intentionally absent.

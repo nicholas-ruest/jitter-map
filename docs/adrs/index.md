@@ -54,3 +54,4 @@ and executable validation.
 - [ADR-0121: Evaluation boundary](./0121-evaluation-boundary.md)
 - [ADR-0122: Shared contract test suite](./0122-shared-contract-test-suite.md)
 - [ADR-0123: Live process integration boundaries](./0123-live-process-integration-boundaries.md)
+- [ADR-0124: Read-only federation sync boundary](./0124-read-only-federation-sync.md)

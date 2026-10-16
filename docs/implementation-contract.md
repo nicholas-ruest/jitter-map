@@ -129,9 +129,13 @@ callers, tests, bridge script, documentation, and receipts. It must not add a cr
 
 - `RufloProcessTransport` and `MetaharnessProcessConfig` carry canonical paths,
   immutable argv, working directory, timeout, 64-KiB output cap, and receipt path.
-- `RufloProcessTransport::probe_registry()` and
+- `RufloProcessTransport::probe_registry()`,
+  `RufloProcessTransport::sync_federation()`, and
   `MetaharnessProcessRunner::evaluate()` return typed receipts; raw
   JSON never crosses into domain crates.
+- Federation sync validates gateway bounds and the complete untrusted provenance
+  envelope. Payloads remain opaque data; only bounded type frequencies and hashes may
+  enter the receipt. The operation is read-only and has authority `none`.
 - Processes are spawned with `std::process::Command`, never `sh -c`; inputs are
   serialized to files or individual argv values, never interpolated command text.
 - Timeout, missing executable/module, non-zero exit, malformed schema, oversized

@@ -1,6 +1,6 @@
 # Architecture decision records
 
-49 accepted decisions. 26 (ADR-0001–ADR-0026) freeze the bounded MVP that originally
+51 accepted decisions. 26 (ADR-0001–ADR-0026) freeze the bounded MVP that originally
 shipped in the base six-package workspace (`3db7fd2`). ADR-0027 planned the 22-crate
 migration described in docs/architecture.md. ADR-0101–ADR-0122 are the 22 decisions
 that actually implement that plan, one per planned crate — each one record the real
@@ -63,3 +63,5 @@ relevant one.
 | [0120](./0120-composition-root-cli.md) Composition root — CLI | `jitter-cli`: same CLI contract, `--interrupt-after`/`--replay` added |
 | [0121](./0121-evaluation-boundary.md) Evaluation boundary | `jitter-evaluation`: re-pointed at the new kernel; committed fitness-delta regression |
 | [0122](./0122-shared-contract-test-suite.md) Shared contract test suite | `jitter-contract-tests`: 5 `assert_*` fns, invoked by all 5 real adapters |
+| [0123](./0123-live-process-integration-boundaries.md) Live process integration boundaries | Pinned Ruflo and MetaHarness processes run behind bounded Rust APIs with typed append-only receipts and authority `none` |
+| [0124](./0124-read-only-federation-sync.md) Read-only federation sync boundary | Ruflo sync preserves the untrusted envelope and emits only bounded, hashed metadata with no command or membership authority |

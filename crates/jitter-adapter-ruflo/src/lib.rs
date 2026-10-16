@@ -1,20 +1,21 @@
 //! Ruflo coordination adapter and a bounded live CLI transport.
 //!
-//! ADR-0114 and ADR-0123; docs/ddd/12-operations-failure.md.
+//! ADR-0114, ADR-0123, and ADR-0124; docs/ddd/12-operations-failure.md.
+
+mod federation;
+mod process;
 
 use jitter_outcome::OutcomeEvent;
 use jitter_ports::{HarnessSink, InterruptionSignal, PortError};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::fs::OpenOptions;
-use std::io::{Read, Write};
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicI64, AtomicU64, Ordering};
-use std::thread;
 use std::time::{Duration, Instant};
 
-const MAX_OUTPUT_BYTES: usize = 64 * 1024;
+use federation::parse_federation;
+use process::{append_receipt, canonical_dir, canonical_file, run_bounded};
 
 pub struct RufloSignalAdapter {
     interrupt_at: AtomicI64,
@@ -77,6 +78,24 @@ pub struct RufloRegistryReceipt {
     pub http_base: String,
     pub swarm_tag: String,
     pub registration_enabled: bool,
+    pub argv_sha256: String,
+    pub output_sha256: String,
+    pub exit_status: i32,
+    pub elapsed_ms: u128,
+    pub authority: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RufloSyncReceipt {
+    pub package: String,
+    pub executable: String,
+    pub relay: String,
+    pub provenance: String,
+    pub retrieved_at: String,
+    pub since_secs: u32,
+    pub limit: u16,
+    pub message_count: usize,
+    pub message_types: BTreeMap<String, u64>,
     pub argv_sha256: String,
     pub output_sha256: String,
     pub exit_status: i32,
@@ -158,108 +177,68 @@ impl RufloProcessTransport {
         append_receipt(&self.receipt_path, &receipt)?;
         Ok(receipt)
     }
-}
 
-fn canonical_file(path: &Path) -> Result<PathBuf, PortError> {
-    let canonical = path
-        .canonicalize()
-        .map_err(|error| PortError::Unavailable(format!("executable unavailable: {error}")))?;
-    if !canonical.is_file() {
-        return Err(PortError::Unavailable("executable is not a file".into()));
-    }
-    Ok(canonical)
-}
-
-fn canonical_dir(path: &Path) -> Result<PathBuf, PortError> {
-    let canonical = path.canonicalize().map_err(|error| {
-        PortError::Unavailable(format!("working directory unavailable: {error}"))
-    })?;
-    if !canonical.is_dir() {
-        return Err(PortError::Unavailable(
-            "working directory is not a directory".into(),
-        ));
-    }
-    Ok(canonical)
-}
-
-fn run_bounded(
-    program: &Path,
-    args: &[&str],
-    working_dir: &Path,
-    timeout: Duration,
-) -> Result<Vec<u8>, PortError> {
-    let mut child = Command::new(program)
-        .args(args)
-        .current_dir(working_dir)
-        .stdin(Stdio::null())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .map_err(|error| PortError::Unavailable(format!("Ruflo spawn failed: {error}")))?;
-    let stdout = child.stdout.take().expect("piped stdout");
-    let stderr = child.stderr.take().expect("piped stderr");
-    let stdout_reader = thread::spawn(move || read_stream(stdout));
-    let stderr_reader = thread::spawn(move || read_stream(stderr));
-    let started = Instant::now();
-    let status = loop {
-        if let Some(status) = child
-            .try_wait()
-            .map_err(|error| PortError::Unavailable(format!("Ruflo wait failed: {error}")))?
-        {
-            break status;
+    /// Reads the public federation through the pinned CLI without membership authority.
+    pub fn sync_federation(
+        &self,
+        since_secs: u32,
+        limit: u16,
+    ) -> Result<RufloSyncReceipt, PortError> {
+        if !(1..=2_592_000).contains(&since_secs) {
+            return Err(PortError::Rejected(
+                "Ruflo sync since_secs must be between 1 and 2592000".into(),
+            ));
         }
-        if started.elapsed() >= timeout {
-            let _ = child.kill();
-            let _ = child.wait();
-            return Err(PortError::Unavailable("Ruflo process timed out".into()));
+        if !(1..=1_000).contains(&limit) {
+            return Err(PortError::Rejected(
+                "Ruflo sync limit must be between 1 and 1000".into(),
+            ));
         }
-        thread::sleep(Duration::from_millis(10));
-    };
-    let stdout = join_reader(stdout_reader)?;
-    let stderr = join_reader(stderr_reader)?;
-    if stdout.len() > MAX_OUTPUT_BYTES || stderr.len() > MAX_OUTPUT_BYTES {
-        return Err(PortError::Rejected("Ruflo output exceeded 64 KiB".into()));
+        let program = canonical_file(&self.program)?;
+        let working_dir = canonical_dir(&self.working_dir)?;
+        let since = since_secs.to_string();
+        let limit_value = limit.to_string();
+        let args = [
+            "federation",
+            "sync",
+            "--since",
+            since.as_str(),
+            "--limit",
+            limit_value.as_str(),
+            "--format",
+            "json",
+        ];
+        let started = Instant::now();
+        let output = run_bounded(&program, &args, &working_dir, self.timeout)?;
+        let (envelope, message_types) = parse_federation(&output)?;
+        let argv_bytes = args.join("\0");
+        let receipt = RufloSyncReceipt {
+            package: "@claude-flow/cli@3.56.10".into(),
+            executable: program.display().to_string(),
+            relay: envelope.relay,
+            provenance: envelope.provenance,
+            retrieved_at: envelope.retrieved_at,
+            since_secs,
+            limit,
+            message_count: envelope.data.count,
+            message_types,
+            argv_sha256: format!("{:x}", Sha256::digest(argv_bytes.as_bytes())),
+            output_sha256: format!("{:x}", Sha256::digest(&output)),
+            exit_status: 0,
+            elapsed_ms: started.elapsed().as_millis(),
+            authority: "none".into(),
+        };
+        append_receipt(&self.receipt_path, &receipt)?;
+        Ok(receipt)
     }
-    if !status.success() {
-        return Err(PortError::Unavailable(format!(
-            "Ruflo exited {status}: {}",
-            String::from_utf8_lossy(&stderr).trim()
-        )));
-    }
-    Ok(stdout)
-}
-
-fn read_stream(mut stream: impl Read) -> std::io::Result<Vec<u8>> {
-    let mut bytes = Vec::new();
-    stream
-        .by_ref()
-        .take((MAX_OUTPUT_BYTES + 1) as u64)
-        .read_to_end(&mut bytes)?;
-    Ok(bytes)
-}
-
-fn join_reader(handle: thread::JoinHandle<std::io::Result<Vec<u8>>>) -> Result<Vec<u8>, PortError> {
-    handle
-        .join()
-        .map_err(|_| PortError::Unavailable("Ruflo reader panicked".into()))?
-        .map_err(|error| PortError::Unavailable(format!("Ruflo output read failed: {error}")))
-}
-
-fn append_receipt(path: &Path, receipt: &RufloRegistryReceipt) -> Result<(), PortError> {
-    let line = serde_json::to_string(receipt)
-        .map_err(|error| PortError::Rejected(format!("receipt serialization failed: {error}")))?;
-    let mut file = OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(path)
-        .map_err(|error| PortError::Unavailable(format!("receipt open failed: {error}")))?;
-    writeln!(file, "{line}")
-        .map_err(|error| PortError::Unavailable(format!("receipt write failed: {error}")))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use process::MAX_OUTPUT_BYTES;
+    use std::io::Write;
+    use std::thread;
     use tempfile::tempdir;
 
     #[test]
@@ -364,6 +343,70 @@ mod tests {
     }
 
     #[test]
+    fn federation_sync_preserves_untrusted_provenance_and_counts_types() {
+        let output = br#"{"untrusted":true,"provenance":"third-party data","relay":"wss://relay.example","retrievedAt":"2026-10-16T00:00:00Z","data":{"count":3,"messages":[{"type":"Result","body":"opaque"},{"type":"Result"},{"type":"Announcement"}]}}"#;
+        let (envelope, types) = parse_federation(output).unwrap();
+        assert_eq!(envelope.data.count, 3);
+        assert_eq!(types["Result"], 2);
+        assert_eq!(types["Announcement"], 1);
+    }
+
+    #[test]
+    fn federation_sync_accepts_zero_message_envelope() {
+        let output = br#"{"untrusted":true,"provenance":"third-party data","relay":"wss://relay.example","retrievedAt":"2026-10-16T00:00:00Z","data":{"count":0,"messages":[]}}"#;
+        let (envelope, types) = parse_federation(output).unwrap();
+        assert_eq!(envelope.data.count, 0);
+        assert!(types.is_empty());
+    }
+
+    #[test]
+    fn federation_sync_rejects_missing_untrusted_label() {
+        let output = br#"{"untrusted":false,"provenance":"third-party data","relay":"wss://relay.example","retrievedAt":"2026-10-16T00:00:00Z","data":{"count":0,"messages":[]}}"#;
+        let error = parse_federation(output).unwrap_err();
+        assert!(matches!(error, PortError::Rejected(message) if message.contains("untrusted")));
+    }
+
+    #[test]
+    fn federation_sync_rejects_count_mismatch() {
+        let output = br#"{"untrusted":true,"provenance":"third-party data","relay":"wss://relay.example","retrievedAt":"2026-10-16T00:00:00Z","data":{"count":2,"messages":[{"type":"Result"}]}}"#;
+        let error = parse_federation(output).unwrap_err();
+        assert!(matches!(error, PortError::Rejected(message) if message.contains("count")));
+    }
+
+    #[test]
+    fn federation_sync_rejects_invalid_message_type() {
+        let output = br#"{"untrusted":true,"provenance":"third-party data","relay":"wss://relay.example","retrievedAt":"2026-10-16T00:00:00Z","data":{"count":1,"messages":[{"body":"opaque"}]}}"#;
+        let error = parse_federation(output).unwrap_err();
+        assert!(matches!(error, PortError::Rejected(message) if message.contains("type")));
+    }
+
+    #[test]
+    fn federation_sync_classifies_signed_raw_wrapper_as_opaque() {
+        let output = br#"{"untrusted":true,"provenance":"third-party data","relay":"wss://relay.example","retrievedAt":"2026-10-16T00:00:00Z","data":{"count":1,"messages":[{"id":"abc","pubkey":"key","raw":"opaque signed payload"}]}}"#;
+        let (envelope, types) = parse_federation(output).unwrap();
+        assert_eq!(envelope.data.count, 1);
+        assert_eq!(types["opaque-raw"], 1);
+    }
+
+    #[test]
+    fn federation_sync_rejects_invalid_bounds_before_process_access() {
+        let dir = tempdir().unwrap();
+        let transport = RufloProcessTransport::new(
+            dir.path().join("missing"),
+            dir.path(),
+            dir.path().join("receipt.jsonl"),
+        );
+        assert!(matches!(
+            transport.sync_federation(0, 1),
+            Err(PortError::Rejected(_))
+        ));
+        assert!(matches!(
+            transport.sync_federation(1, 0),
+            Err(PortError::Rejected(_))
+        ));
+    }
+
+    #[test]
     #[ignore = "child-process fixture only"]
     fn fixture_timeout() {
         thread::sleep(Duration::from_secs(5));
@@ -391,7 +434,7 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requires the pinned Ruflo CLI and live registry"]
+    #[ignore = "requires the pinned Ruflo CLI and live federation"]
     fn live_ruflo_registry_when_configured() {
         let program = std::env::var_os("JITTER_RUFLO_BIN").expect("JITTER_RUFLO_BIN");
         let workdir = std::env::var_os("JITTER_RUFLO_WORKDIR").expect("JITTER_RUFLO_WORKDIR");
@@ -402,5 +445,19 @@ mod tests {
         assert_eq!(receipt.package, "@claude-flow/cli@3.56.10");
         assert_eq!(receipt.authority, "none");
         assert!(receipt.registration_enabled);
+
+        let sync = RufloProcessTransport::new(
+            std::env::var_os("JITTER_RUFLO_BIN").expect("JITTER_RUFLO_BIN"),
+            std::env::var_os("JITTER_RUFLO_WORKDIR").expect("JITTER_RUFLO_WORKDIR"),
+            dir.path().join("ruflo.jsonl"),
+        )
+        .sync_federation(604_800, 20)
+        .unwrap();
+        assert!(sync.message_count <= 20);
+        assert_eq!(
+            sync.message_types.values().sum::<u64>(),
+            sync.message_count as u64
+        );
+        assert_eq!(sync.authority, "none");
     }
 }
