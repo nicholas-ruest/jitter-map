@@ -87,4 +87,21 @@ fn read_stream(mut stream: impl Read) -> std::io::Result<Vec<u8>> {
     Ok(bytes)
 }
 
-fn join_reader(handle: thread::hºÚn¶ÚîÆ­y
+fn join_reader(handle: thread::JoinHandle<std::io::Result<Vec<u8>>>) -> Result<Vec<u8>, PortError> {
+    handle
+        .join()
+        .map_err(|_| PortError::Unavailable("Ruflo reader panicked".into()))?
+        .map_err(|error| PortError::Unavailable(format!("Ruflo output read failed: {error}")))
+}
+
+pub(crate) fn append_receipt<T: Serialize>(path: &Path, receipt: &T) -> Result<(), PortError> {
+    let line = serde_json::to_string(receipt)
+        .map_err(|error| PortError::Rejected(format!("receipt serialization failed: {error}")))?;
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(path)
+        .map_err(|error| PortError::Unavailable(format!("receipt open failed: {error}")))?;
+    writeln!(file, "{line}")
+        .map_err(|error| PortError::Unavailable(format!("receipt write failed: {error}")))
+}

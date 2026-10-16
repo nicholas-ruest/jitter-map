@@ -54,4 +54,19 @@ non-empty messages and hostile schema cases.
 ## Consequences
 
 Malformed JSON, `untrusted=false`, non-TLS relay metadata, missing provenance fields,
-count mismatch, invalid message-type metadata, z.¶›­¶»§q«^
+count mismatch, invalid message-type metadata, timeout, output overflow, non-zero exit,
+or receipt I/O failure returns `PortError` and produces no successful receipt. Domain
+results remain unchanged when the process integration is removed; the sync path is
+read-only evidence with no promotion, deployment, membership, or interruption authority.
+
+## Validation
+
+- deterministic parser tests for valid non-empty and zero-message envelopes;
+- a signed-raw-wrapper classification test plus rejection of unclassified messages;
+- rejection tests for trusted-labelled, non-TLS, inconsistent-count, missing-field, and
+  invalid-type responses;
+- input-bound tests for both gateway-enforced ranges;
+- existing child-process timeout, overflow, and non-zero-exit tests;
+- an ignored RuOS test against pinned Ruflo 3.56.10 that performs fresh registry and
+  seven-day federation-sync reads from an isolated checkout;
+- locked workspace tests, strict Clippy, dependency-direction, and structural checker.
